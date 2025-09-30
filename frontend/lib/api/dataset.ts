@@ -15,3 +15,16 @@ export async function uploadDataset(file: File, name: string) {
 
   return response.json();
 }
+
+export async function fetchHeaders(id: number) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/datasets/${id}/headers/`
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to fetch headers");
+  }
+
+  return response.json();
+}

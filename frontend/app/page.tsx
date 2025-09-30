@@ -4,15 +4,20 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { uploadDataset } from "@/lib/api/dataset";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { uploadDataset, fetchHeaders } from "@/lib/api/dataset";
 
 export default function DatasetUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [data, setData] = useState<{ name: string; headers: string[] } | null>(
-    null
-  );
+  const [data, setData] = useState<{
+    id: number;
+    name: string;
+    headers: string[];
+  } | null>(null);
+  const [showHeaders, setShowHeaders] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
@@ -30,20 +35,31 @@ export default function DatasetUpload() {
       return;
     }
     try {
-      const data = await uploadDataset(file, name);
-      console.log("Headers:", data.headers);
-      setData(data);
-      setStatus(`✅ Upload successful: ${data.name}`);
+      const uploaded = await uploadDataset(file, name);
+      setData(uploaded);
+      setStatus(`✅ Upload successful: ${uploaded.name}`);
       setFile(null);
       setName("");
+      setShowHeaders(false); // reset headers view after new upload
+    } catch (error: any) {
+      setStatus(`❌ ${error.message}`);
+    }
+  };
+
+  const handleFetchHeaders = async () => {
+    if (!data?.id) return;
+    try {
+      const res = await fetchHeaders(data.id);
+      setData({ ...data, headers: res.headers });
+      setShowHeaders(true);
     } catch (error: any) {
       setStatus(`❌ ${error.message}`);
     }
   };
 
   return (
-    <>
-      <form onSubmit={handleUpload} className="space-y-4 max-w-md mx-auto p-4">
+    <div className="space-y-6 max-w-2xl mx-auto p-4">
+      <form onSubmit={handleUpload} className="space-y-4">
         <div>
           <Label htmlFor="name">Dataset Name</Label>
           <Input
@@ -66,11 +82,34 @@ export default function DatasetUpload() {
         </div>
 
         <Button type="submit">Upload</Button>
-
         {status && <p className="text-sm mt-2">{status}</p>}
       </form>
 
-      <h4>{data?.headers}</h4>
-    </>
+      {data && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{data.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!showHeaders ? (
+              <Button onClick={handleFetchHeaders}>Fetch Headers</Button>
+            ) : (
+              <ul className="space-y-2">
+                {data.headers.map((header, idx) => (
+                  <li key={idx}>
+                    <Badge
+                      variant="outline"
+                      className="px-3 py-1 w-full justify-start"
+                    >
+                      {header}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
