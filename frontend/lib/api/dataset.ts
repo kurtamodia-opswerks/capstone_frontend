@@ -18,7 +18,7 @@ export async function uploadDataset(file: File) {
     throw new Error(errorText || "Upload failed");
   }
 
-  return response.json(); // contains message, upload_id, rows_inserted
+  return response.json(); 
 }
 
 // Fetch dataset contents by upload_id
