@@ -6,25 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { uploadDataset, fetchHeaders } from "@/lib/api/dataset";
+import { uploadDataset, fetchDatasetContents } from "@/lib/api/dataset";
 
 export default function DatasetUpload() {
   const [file, setFile] = useState<File | null>(null);
-  const [name, setName] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [data, setData] = useState<{
-    id: number;
-    name: string;
-    headers: string[];
-  } | null>(null);
-  const [showHeaders, setShowHeaders] = useState(false);
+  const [uploadId, setUploadId] = useState<string | null>(null);
+  const [dataset, setDataset] = useState<any[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
-    if (f && !name) {
-      setName(f.name.replace(/\.csv$/i, ""));
-    }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -35,42 +27,31 @@ export default function DatasetUpload() {
       return;
     }
     try {
-      const uploaded = await uploadDataset(file, name);
-      setData(uploaded);
-      setStatus(`✅ Upload successful: ${uploaded.name}`);
+      const uploaded = await uploadDataset(file); // returns { message, upload_id, rows_inserted }
+      setUploadId(uploaded.upload_id);
+      setStatus(`Upload successful: ${uploaded.rows_inserted} rows inserted`);
       setFile(null);
-      setName("");
-      setShowHeaders(false); // reset headers view after new upload
     } catch (error: any) {
-      setStatus(`❌ ${error.message}`);
+      setStatus(`${error.message}`);
     }
   };
 
-  const handleFetchHeaders = async () => {
-    if (!data?.id) return;
+  const handleFetchContents = async () => {
+    if (!uploadId) return;
     try {
-      const res = await fetchHeaders(data.id);
-      setData({ ...data, headers: res.headers });
-      setShowHeaders(true);
+      const contents = await fetchDatasetContents(uploadId);
+      console.log("Fetched contents:", contents);
+      setDataset(contents);
+      setStatus(`Fetched ${contents.length} rows for ${uploadId}`);
     } catch (error: any) {
-      setStatus(`❌ ${error.message}`);
+      setStatus(`${error.message}`);
     }
   };
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto p-4">
+      {/* Upload Form */}
       <form onSubmit={handleUpload} className="space-y-4">
-        <div>
-          <Label htmlFor="name">Dataset Name</Label>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Enter dataset name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
         <div>
           <Label htmlFor="file">CSV File</Label>
           <Input
@@ -85,27 +66,32 @@ export default function DatasetUpload() {
         {status && <p className="text-sm mt-2">{status}</p>}
       </form>
 
-      {data && (
+      {/* Dataset Fetch & Display */}
+      {uploadId && (
         <Card>
           <CardHeader>
-            <CardTitle>{data.name}</CardTitle>
+            <CardTitle>Upload ID: {uploadId}</CardTitle>
           </CardHeader>
           <CardContent>
-            {!showHeaders ? (
-              <Button onClick={handleFetchHeaders}>Fetch Headers</Button>
-            ) : (
-              <ul className="space-y-2">
-                {data.headers.map((header, idx) => (
-                  <li key={idx}>
-                    <Badge
-                      variant="outline"
-                      className="px-3 py-1 w-full justify-start"
-                    >
-                      {header}
-                    </Badge>
-                  </li>
+            <Button onClick={handleFetchContents} className="mb-4">
+              Fetch Dataset Contents
+            </Button>
+
+            {dataset.length > 0 && (
+              <div className="space-y-2">
+                {dataset.map((row, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-wrap gap-2 border rounded p-2"
+                  >
+                    {Object.entries(row).map(([key, value]) => (
+                      <Badge key={key} variant="outline" className="px-2 py-1">
+                        {key}: {String(value)}
+                      </Badge>
+                    ))}
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </CardContent>
         </Card>
