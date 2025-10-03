@@ -5,20 +5,17 @@ export async function uploadDataset(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dataset/`, // DRF router auto-exposes at /dataset/
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dataset/`, {
+    method: "POST",
+    body: formData,
+  });
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText || "Upload failed");
   }
 
-  return response.json(); 
+  return response.json();
 }
 
 // Fetch dataset contents by upload_id
@@ -32,7 +29,7 @@ export async function fetchDatasetContents(upload_id: string) {
     throw new Error(errorText || "Fetching dataset failed");
   }
 
-  return response.json(); // actual dataset contents
+  return response.json();
 }
 
 // Fetch dataset headers/columns that have valid values
@@ -46,20 +43,29 @@ export async function fetchDatasetColumns(upload_id: string) {
     throw new Error(errorText || "Fetching dataset headers failed");
   }
 
-  return response.json(); // { valid_headers: [...] }
+  return response.json();
 }
 
+// Fetch aggregated data for charting
 export async function fetchAggregatedData(
   uploadId: string,
   xAxis: string,
   yAxis: string,
   aggFunc: string = "sum"
 ) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dataset/aggregate/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ upload_id: uploadId, x_axis: xAxis, y_axis: yAxis, agg_func: aggFunc }),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dataset/aggregate/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        upload_id: uploadId,
+        x_axis: xAxis,
+        y_axis: yAxis,
+        agg_func: aggFunc,
+      }),
+    }
+  );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -68,4 +74,3 @@ export async function fetchAggregatedData(
 
   return res.json();
 }
-
