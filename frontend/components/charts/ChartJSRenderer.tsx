@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect } from "react";
 import {
   Chart as ChartJS,
   Title,
@@ -35,11 +35,13 @@ export default function ChartJSRenderer({
   data,
   xAxis,
   yAxis,
+  onRendered,
 }: {
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
   yAxis: string | null;
+  onRendered?: () => void;
 }) {
   const chartJsData = {
     labels: data.map((d) => d[xAxis as string]),
@@ -51,6 +53,12 @@ export default function ChartJSRenderer({
       },
     ],
   };
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      onRendered?.();
+    });
+  }, [data, chartType, xAxis, yAxis]);
 
   return (
     <div className="w-full h-[400px]">
