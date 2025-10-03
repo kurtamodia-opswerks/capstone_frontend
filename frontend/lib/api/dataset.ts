@@ -47,11 +47,14 @@ export async function fetchDatasetColumns(upload_id: string) {
 }
 
 // Fetch aggregated data for charting
+// api/datasets.ts
 export async function fetchAggregatedData(
   uploadId: string,
   xAxis: string,
   yAxis: string,
-  aggFunc: string = "sum"
+  aggFunc: string,
+  yearFrom?: string | null,
+  yearTo?: string | null
 ) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/dataset/aggregate/`,
@@ -63,14 +66,12 @@ export async function fetchAggregatedData(
         x_axis: xAxis,
         y_axis: yAxis,
         agg_func: aggFunc,
+        year_from: yearFrom || undefined,
+        year_to: yearTo || undefined,
       }),
     }
   );
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || "Failed to fetch aggregated data");
-  }
-
+  if (!res.ok) throw new Error("Failed to fetch aggregated data");
   return res.json();
 }

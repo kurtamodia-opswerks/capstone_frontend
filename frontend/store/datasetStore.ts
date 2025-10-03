@@ -1,25 +1,29 @@
-// stores/datasetStore.ts
+// store/datasetStore.ts
 import { create } from "zustand";
 import { fetchDatasetColumns, fetchAggregatedData } from "@/lib/api/dataset";
-
-type ChartType = "bar" | "line" | "pie";
 
 interface DatasetState {
   uploadId: string | null;
   headers: string[];
   status: string | null;
-  chartType: ChartType;
+  chartType: "bar" | "line" | "pie";
   xAxis: string | null;
   yAxis: string | null;
+  aggFunc: string;
+  yearFrom: string | null;
+  yearTo: string | null;
   data: any[];
 
-  // actions
   setUploadId: (id: string) => void;
-  setStatus: (status: string | null) => void;
-  fetchHeaders: () => Promise<void>;
-  setChartType: (type: ChartType) => void;
+  setStatus: (s: string) => void;
+  setChartType: (c: "bar" | "line" | "pie") => void;
   setXAxis: (x: string) => void;
   setYAxis: (y: string) => void;
+  setAggFunc: (f: string) => void;
+  setYearFrom: (y: string | null) => void;
+  setYearTo: (y: string | null) => void;
+
+  fetchHeaders: () => Promise<void>;
   fetchData: () => Promise<void>;
 }
 
@@ -30,39 +34,46 @@ export const useDatasetStore = create<DatasetState>((set, get) => ({
   chartType: "bar",
   xAxis: null,
   yAxis: null,
+  aggFunc: "sum",
+  yearFrom: null,
+  yearTo: null,
   data: [],
 
   setUploadId: (id) => set({ uploadId: id }),
-  setStatus: (status) => set({ status }),
+  setStatus: (s) => set({ status: s }),
+  setChartType: (c) => set({ chartType: c }),
+  setXAxis: (x) => set({ xAxis: x }),
+  setYAxis: (y) => set({ yAxis: y }),
+  setAggFunc: (f) => set({ aggFunc: f }),
+  setYearFrom: (y) => set({ yearFrom: y }),
+  setYearTo: (y) => set({ yearTo: y }),
 
   fetchHeaders: async () => {
     const { uploadId } = get();
     if (!uploadId) return;
     try {
       const result = await fetchDatasetColumns(uploadId);
-      set({
-        headers: result.valid_headers,
-        xAxis: result.valid_headers[0] ?? null,
-        yAxis: result.valid_headers[1] ?? null,
-        status: `Fetched ${result.valid_headers.length} valid headers`,
-      });
-    } catch (error: any) {
-      set({ status: error.message ?? "An unknown error occurred" });
+      set({ headers: result.valid_headers });
+    } catch (err: any) {
+      set({ status: err.message });
     }
   },
 
-  setChartType: (type) => set({ chartType: type }),
-  setXAxis: (x) => set({ xAxis: x }),
-  setYAxis: (y) => set({ yAxis: y }),
-
   fetchData: async () => {
-    const { uploadId, xAxis, yAxis } = get();
+    const { uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
     if (!uploadId || !xAxis || !yAxis) return;
     try {
-      const rows = await fetchAggregatedData(uploadId, xAxis, yAxis, "sum");
+      const rows = await fetchAggregatedData(
+        uploadId,
+        xAxis,
+        yAxis,
+        aggFunc,
+        yearFrom,
+        yearTo
+      );
       set({ data: rows });
-    } catch (error: any) {
-      set({ status: error.message ?? "Failed to fetch data" });
+    } catch (err: any) {
+      set({ status: err.message });
     }
   },
 }));
