@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useDatasetStore } from "@/store/datasetStore";
+import { useChartStore } from "@/store/chartStore";
 import ChartPreview from "./ChartPreview";
 
 export default function ChartControls() {
+  const { headers } = useDatasetStore();
+
   const {
-    headers,
     chartType,
     xAxis,
     yAxis,
@@ -29,7 +31,7 @@ export default function ChartControls() {
     setYearTo,
     fetchData,
     data,
-  } = useDatasetStore();
+  } = useChartStore();
 
   useEffect(() => {
     fetchData();
@@ -44,7 +46,7 @@ export default function ChartControls() {
           <label className="block text-sm font-medium">Chart Type</label>
           <Select value={chartType} onValueChange={setChartType}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="bar">Bar</SelectItem>
@@ -59,7 +61,7 @@ export default function ChartControls() {
           <label className="block text-sm font-medium">X Axis</label>
           <Select value={xAxis ?? ""} onValueChange={setXAxis}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select X axis" />
             </SelectTrigger>
             <SelectContent>
               {headers.map((h) => (
@@ -76,7 +78,7 @@ export default function ChartControls() {
           <label className="block text-sm font-medium">Y Axis</label>
           <Select value={yAxis ?? ""} onValueChange={setYAxis}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select Y axis" />
             </SelectTrigger>
             <SelectContent>
               {headers.map((h) => (
@@ -93,7 +95,7 @@ export default function ChartControls() {
           <label className="block text-sm font-medium">Aggregation</label>
           <Select value={aggFunc} onValueChange={setAggFunc}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select function" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="sum">Sum</SelectItem>
