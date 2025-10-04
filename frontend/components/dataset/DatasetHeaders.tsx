@@ -14,7 +14,6 @@ export default function DatasetHeaders() {
       <Button onClick={fetchHeaders} className="mb-4">
         Fetch Dataset Headers
       </Button>
-      {status && <p className="text-sm mb-2">{status}</p>}
 
       {headers.length > 0 && (
         <>

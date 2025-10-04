@@ -1,6 +1,7 @@
 // store/datasetStore.ts
 import { create } from "zustand";
-import { fetchDatasetColumns, fetchAggregatedData } from "@/lib/api/dataset";
+import { fetchDatasetColumns } from "@/lib/api/dataset";
+import { fetchAggregatedData } from "@/lib/api/chart";
 
 interface DatasetState {
   uploadId: string | null;
