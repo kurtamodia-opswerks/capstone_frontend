@@ -5,10 +5,13 @@ export async function uploadDataset(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dataset/`, {
-    method: "POST",
-    body: formData,
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dataset/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -46,8 +49,6 @@ export async function fetchDatasetColumns(upload_id: string) {
   return response.json();
 }
 
-// Fetch aggregated data for charting
-// api/datasets.ts
 export async function fetchAggregatedData(
   uploadId: string,
   xAxis: string,
