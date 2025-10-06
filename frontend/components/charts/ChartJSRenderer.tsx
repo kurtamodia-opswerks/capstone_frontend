@@ -1,34 +1,9 @@
 "use client";
-import { useEffect } from "react";
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip as ChartTooltip,
-  Legend as ChartLegend,
-  ArcElement,
-  BarElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-} from "chart.js";
-import {
-  Bar as ChartJSBar,
-  Line as ChartJSLine,
-  Pie as ChartJSPie,
-} from "react-chartjs-2";
 
-ChartJS.register(
-  Title,
-  ChartTooltip,
-  ChartLegend,
-  ArcElement,
-  BarElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement
-);
+import { useEffect } from "react";
+import LineGraph from "./chartjs-charts/LineGraph";
+import BarChart from "./chartjs-charts/BarChart";
+import PieChart from "./chartjs-charts/PieChart";
 
 export default function ChartJSRenderer({
   chartType,
@@ -62,9 +37,9 @@ export default function ChartJSRenderer({
 
   return (
     <div className="w-full h-[400px]">
-      {chartType === "bar" && <ChartJSBar data={chartJsData} />}
-      {chartType === "line" && <ChartJSLine data={chartJsData} />}
-      {chartType === "pie" && <ChartJSPie data={chartJsData} />}
+      {chartType === "bar" && <BarChart data={chartJsData} />}
+      {chartType === "line" && <LineGraph data={chartJsData} />}
+      {chartType === "pie" && <PieChart data={chartJsData} />}
     </div>
   );
 }

@@ -18,7 +18,6 @@ export default function ChartPreview({
   const [rechartsTime, setRechartsTime] = useState<number | null>(null);
   const [chartJsTime, setChartJsTime] = useState<number | null>(null);
 
-  // 🔹 Ref to store start time
   const renderStartRef = useRef<number>(0);
 
   // Reset measurement when data or chart type changes
@@ -40,7 +39,7 @@ export default function ChartPreview({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <RechartsRenderer
           chartType={chartType}
           data={data}
