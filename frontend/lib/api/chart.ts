@@ -1,3 +1,5 @@
+// lib/api/chart.ts
+
 export async function fetchAggregatedData(
   uploadId: string,
   xAxis: string,
@@ -7,7 +9,7 @@ export async function fetchAggregatedData(
   yearTo?: string | null
 ) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/chart/aggregate/`,
+    `${process.env.NEXT_PUBLIC_API_URL}/chart/aggregate`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -16,8 +18,8 @@ export async function fetchAggregatedData(
         x_axis: xAxis,
         y_axis: yAxis,
         agg_func: aggFunc,
-        year_from: yearFrom || undefined,
-        year_to: yearTo || undefined,
+        year_from: yearFrom ? Number(yearFrom) : undefined,
+        year_to: yearTo ? Number(yearTo) : undefined,
       }),
     }
   );
@@ -36,26 +38,37 @@ export async function postSaveChart(
   yearTo: string | null,
   name: string
 ) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chart/save`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        upload_id: uploadId,
-        chart_type: chartType,
-        x_axis: xAxis,
-        y_axis: yAxis,
-        agg_func: aggFunc,
-        year_from: yearFrom ? Number(yearFrom) : undefined,
-        year_to: yearTo ? Number(yearTo) : undefined,
-        name: name,
-      }),
-    });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chart/save`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      upload_id: uploadId,
+      chart_type: chartType,
+      x_axis: xAxis,
+      y_axis: yAxis,
+      agg_func: aggFunc,
+      year_from: yearFrom ? Number(yearFrom) : undefined,
+      year_to: yearTo ? Number(yearTo) : undefined,
+      name,
+    }),
+  });
 
-    if (!res.ok) throw new Error("Failed to save chart");
-    const data = await res.json();
-    return data;
-  } catch (err: any) {
-    throw new Error(err.message);
-  }
+  if (!res.ok) throw new Error("Failed to save chart");
+  return res.json();
+}
+
+export async function fetchSavedCharts(uploadId: string) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/${uploadId}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch saved charts");
+  return res.json();
+}
+
+export async function fetchChartById(chartId: string) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/chart/${chartId}`
+  );
+  if (!res.ok) throw new Error("Chart not found");
+  return res.json();
 }

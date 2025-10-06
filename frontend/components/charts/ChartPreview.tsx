@@ -115,7 +115,7 @@ export default function ChartPreview({
               }
               disabled={!xAxis || !yAxis}
             >
-              Save Chart
+              Save Chart Configuration
             </Button>
           </div>
         </CardContent>
