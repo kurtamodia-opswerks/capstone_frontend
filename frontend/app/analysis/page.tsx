@@ -37,7 +37,7 @@ export default function Analysis() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Dataset Structure</CardTitle>
             <CardDescription>
-              {headers.length} columns detected in your dataset
+              {headers.length} valid columns detected in your dataset
             </CardDescription>
           </CardHeader>
           <CardContent>
