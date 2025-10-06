@@ -1,7 +1,8 @@
 // store/chartStore.ts
 import { create } from "zustand";
-import { fetchAggregatedData } from "@/lib/api/chart";
+import { fetchAggregatedData, postSaveChart } from "@/lib/api/chart";
 import { useDatasetStore } from "./datasetStore";
+import { toast } from "sonner";
 
 interface ChartState {
   chartType: "bar" | "line" | "pie";
@@ -21,6 +22,7 @@ interface ChartState {
   setYearTo: (y: string | null) => void;
 
   fetchData: () => Promise<void>;
+  saveChart: (name: string) => Promise<void>;
 }
 
 export const useChartStore = create<ChartState>((set, get) => ({
@@ -43,7 +45,6 @@ export const useChartStore = create<ChartState>((set, get) => ({
   fetchData: async () => {
     const { uploadId } = useDatasetStore.getState();
     const { xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
-
     if (!uploadId || !xAxis || !yAxis) return;
     try {
       const rows = await fetchAggregatedData(
@@ -55,6 +56,32 @@ export const useChartStore = create<ChartState>((set, get) => ({
         yearTo
       );
       set({ data: rows });
+    } catch (err: any) {
+      set({ status: err.message });
+    }
+  },
+
+  saveChart: async (name: string) => {
+    const { uploadId } = useDatasetStore.getState();
+    const { chartType, xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
+
+    if (!uploadId || !xAxis || !yAxis) {
+      alert("Please select all required fields before saving.");
+      return;
+    }
+
+    try {
+      await postSaveChart(
+        uploadId,
+        chartType,
+        xAxis,
+        yAxis,
+        aggFunc,
+        yearFrom,
+        yearTo,
+        name
+      );
+      toast.success("Chart saved successfully!");
     } catch (err: any) {
       set({ status: err.message });
     }

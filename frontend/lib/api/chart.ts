@@ -25,3 +25,37 @@ export async function fetchAggregatedData(
   if (!res.ok) throw new Error("Failed to fetch aggregated data");
   return res.json();
 }
+
+export async function postSaveChart(
+  uploadId: string,
+  chartType: string,
+  xAxis: string,
+  yAxis: string,
+  aggFunc: string,
+  yearFrom: string | null,
+  yearTo: string | null,
+  name: string
+) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chart/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        upload_id: uploadId,
+        chart_type: chartType,
+        x_axis: xAxis,
+        y_axis: yAxis,
+        agg_func: aggFunc,
+        year_from: yearFrom ? Number(yearFrom) : undefined,
+        year_to: yearTo ? Number(yearTo) : undefined,
+        name: name,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to save chart");
+    const data = await res.json();
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
+}

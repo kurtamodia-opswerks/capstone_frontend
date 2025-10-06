@@ -1,9 +1,13 @@
+// components/ChartPreview.tsx
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useChartStore } from "@/store/chartStore";
+import { useDatasetStore } from "@/store/datasetStore";
 
 export default function ChartPreview({
   chartType,
@@ -16,11 +20,14 @@ export default function ChartPreview({
   xAxis: string | null;
   yAxis: string | null;
 }) {
+  const { uploadId } = useDatasetStore();
   const [rechartsTime, setRechartsTime] = useState<number | null>(null);
   const [chartjsTime, setChartjsTime] = useState<number | null>(null);
 
   const rechartsStart = useRef<number>(0);
   const chartjsStart = useRef<number>(0);
+
+  const { saveChart } = useChartStore();
 
   return (
     <div className="space-y-8">
@@ -69,8 +76,8 @@ export default function ChartPreview({
 
       {/* ===================== PERFORMANCE PANEL ===================== */}
       <Card className="bg-gray-50 border-gray-200">
-        <CardContent className="p-4">
-          <h4 className="font-semibold mb-2 text-gray-800">
+        <CardContent className="p-4 space-y-4">
+          <h4 className="font-semibold text-gray-800">
             Performance Comparison
           </h4>
           <ul className="text-sm space-y-1 text-gray-700">
@@ -97,6 +104,20 @@ export default function ChartPreview({
               </li>
             )}
           </ul>
+
+          {/* Save Chart */}
+          <div className="pt-4 flex items-center gap-2">
+            <Button
+              onClick={() =>
+                saveChart(
+                  `${Date.now()} ${chartType} - Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`
+                )
+              }
+              disabled={!xAxis || !yAxis}
+            >
+              Save Chart
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
