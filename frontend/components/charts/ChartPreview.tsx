@@ -107,14 +107,7 @@ export default function ChartPreview({
 
           {/* Save Chart */}
           <div className="pt-4 flex items-center gap-2">
-            <Button
-              onClick={() =>
-                saveChart(
-                  `${Date.now()} ${chartType} - Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`
-                )
-              }
-              disabled={!xAxis || !yAxis}
-            >
+            <Button onClick={() => saveChart()} disabled={!xAxis || !yAxis}>
               Save Chart Configuration
             </Button>
           </div>

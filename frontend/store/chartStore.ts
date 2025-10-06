@@ -8,6 +8,7 @@ import {
   fetchChartById,
 } from "@/lib/api/chart";
 import { useDatasetStore } from "./datasetStore";
+import { Chathura } from "next/font/google";
 
 interface Chart {
   _id: string;
@@ -42,7 +43,7 @@ interface ChartState {
 
   // actions
   fetchData: () => Promise<void>;
-  saveChart: (name: string) => Promise<void>;
+  saveChart: () => Promise<void>;
   fetchSavedCharts: () => Promise<void>;
   loadChartById: (chartId: string) => Promise<void>;
 }
@@ -94,9 +95,19 @@ export const useChartStore = create<ChartState>((set, get) => ({
   },
 
   // Save current chart configuration
-  saveChart: async (name: string) => {
+  saveChart: async () => {
     const { uploadId } = useDatasetStore.getState();
     const { chartType, xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
+
+    const name =
+      Date.now().toString() +
+      chartType +
+      " Upload ID: " +
+      uploadId +
+      " - " +
+      xAxis +
+      " vs " +
+      yAxis;
 
     if (!uploadId || !xAxis || !yAxis) {
       toast.error("Please select all required fields before saving.");
