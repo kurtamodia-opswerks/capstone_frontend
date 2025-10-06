@@ -1,7 +1,6 @@
-"use client";
-
-import LineGraph from "./chartjs-charts/LineGraph";
+import { useEffect } from "react";
 import BarChart from "./chartjs-charts/BarChart";
+import LineGraph from "./chartjs-charts/LineGraph";
 import PieChart from "./chartjs-charts/PieChart";
 
 export default function ChartJSRenderer({
@@ -9,12 +8,22 @@ export default function ChartJSRenderer({
   data,
   xAxis,
   yAxis,
+  onRenderStart,
+  onRenderEnd,
 }: {
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
   yAxis: string | null;
+  onRenderStart?: () => void;
+  onRenderEnd?: () => void;
 }) {
+  useEffect(() => {
+    onRenderStart?.();
+    const timeout = setTimeout(() => onRenderEnd?.(), 0);
+    return () => clearTimeout(timeout);
+  }, [data, chartType]);
+
   const chartJsData = {
     labels: data.map((d) => d[xAxis as string]),
     datasets: [
