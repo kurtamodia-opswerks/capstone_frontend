@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -20,23 +20,14 @@ export default function RechartsRenderer({
   data,
   xAxis,
   yAxis,
-  onRendered,
 }: {
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
   yAxis: string | null;
-  onRendered?: () => void;
 }) {
-  useEffect(() => {
-    // after first paint
-    requestAnimationFrame(() => {
-      onRendered?.();
-    });
-  }, [data, chartType, xAxis, yAxis]);
-
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="80%" height={400} className={"mx-auto"}>
       {chartType === "bar" ? (
         <BarChart data={data}>
           <XAxis dataKey={xAxis ?? ""} />

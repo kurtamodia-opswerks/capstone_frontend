@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import LineGraph from "./chartjs-charts/LineGraph";
 import BarChart from "./chartjs-charts/BarChart";
 import PieChart from "./chartjs-charts/PieChart";
@@ -10,13 +9,11 @@ export default function ChartJSRenderer({
   data,
   xAxis,
   yAxis,
-  onRendered,
 }: {
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
   yAxis: string | null;
-  onRendered?: () => void;
 }) {
   const chartJsData = {
     labels: data.map((d) => d[xAxis as string]),
@@ -29,14 +26,8 @@ export default function ChartJSRenderer({
     ],
   };
 
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      onRendered?.();
-    });
-  }, [data, chartType, xAxis, yAxis]);
-
   return (
-    <div className="w-full h-[400px]">
+    <div className="flex w-full h-[400px] items-center justify-center">
       {chartType === "bar" && <BarChart data={chartJsData} />}
       {chartType === "line" && <LineGraph data={chartJsData} />}
       {chartType === "pie" && <PieChart data={chartJsData} />}
