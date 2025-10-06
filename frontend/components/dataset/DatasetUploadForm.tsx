@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadDataset } from "@/lib/api/dataset";
-import DatasetHeaders from "./DatasetHeaders";
+import DatasetHeaders from "../../app/analysis/page";
 import { useDatasetStore } from "@/store/datasetStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import DatasetSelector from "./DatasetSelector";
+import { useRouter } from "next/navigation";
 
 interface UploadResponse {
   message: string;
@@ -17,6 +19,8 @@ interface UploadResponse {
 }
 
 export default function DatasetUploadForm() {
+  const router = useRouter();
+
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const { uploadId, status, setUploadId, setStatus } = useDatasetStore();
@@ -61,6 +65,7 @@ export default function DatasetUploadForm() {
         `success: ${uploaded.rows_inserted} rows processed successfully`
       );
       setFile(null);
+      router.push(`/analysis`);
     } catch (error: any) {
       setStatus(`error: ${error.message ?? "An unknown error occurred"}`);
     }
@@ -147,6 +152,12 @@ export default function DatasetUploadForm() {
             </div>
           </form>
         </div>
+        <div className="mt-6 border-t pt-4">
+          <h3 className="text-lg font-medium mb-2 text-center text-muted-foreground">
+            or choose from previous uploads
+          </h3>
+          <DatasetSelector />
+        </div>
       </div>
 
       {/* Status Alert */}
@@ -164,15 +175,6 @@ export default function DatasetUploadForm() {
             {status.split(": ")[1] || status}
           </AlertDescription>
         </Alert>
-      )}
-
-      {/* Dataset Headers Section */}
-      {uploadId && (
-        <Card className="bg-white border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
-            <DatasetHeaders />
-          </CardContent>
-        </Card>
       )}
     </div>
   );

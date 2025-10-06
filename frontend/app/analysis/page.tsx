@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
-import { Button } from "@/components/ui/button";
+import React, { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useDatasetStore } from "@/store/datasetStore";
-import ChartControls from "../charts/ChartControls";
+import ChartControls from "../../components/charts/ChartControls";
 import {
   Card,
   CardContent,
@@ -12,13 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Download, BarChart3 } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 
-export default function DatasetHeaders() {
+export default function Analysis() {
   const { headers, fetchHeaders, uploadId } = useDatasetStore();
 
+  useEffect(() => {
+    fetchHeaders();
+  }, [fetchHeaders]);
+
   return (
-    <div className="space-y-6">
+    <div className="mt-20 max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -27,10 +30,6 @@ export default function DatasetHeaders() {
           </h3>
           <p className="text-sm text-muted-foreground">Upload ID: {uploadId}</p>
         </div>
-        <Button onClick={fetchHeaders} className="gap-2">
-          <Download className="h-4 w-4" />
-          Fetch Headers
-        </Button>
       </div>
 
       {headers.length > 0 && (

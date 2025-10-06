@@ -48,3 +48,17 @@ export async function fetchDatasetColumns(upload_id: string) {
 
   return response.json();
 }
+
+// Fetch all unique upload IDs
+export async function fetchAllUploadIds() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dataset/all`
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Fetching upload IDs failed");
+  }
+
+  return response.json(); // returns { upload_ids: [...] }
+}
