@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/chart";
 import { useDatasetStore } from "./datasetStore";
 
+// ==================== TYPES ====================
 interface Chart {
   _id: string;
   name: string;
@@ -20,8 +21,10 @@ interface Chart {
   year_to?: number;
 }
 
+type ChartType = "bar" | "line" | "pie";
+
 interface ChartState {
-  chartType: "bar" | "line" | "pie";
+  chartType: ChartType;
   xAxis: string | null;
   yAxis: string | null;
   aggFunc: string;
@@ -34,12 +37,12 @@ interface ChartState {
   pendingChartId: string | null;
 
   // setters
-  setChartType: (c: "bar" | "line" | "pie") => void;
+  setChartType: (type: ChartType) => void;
   setXAxis: (x: string) => void;
   setYAxis: (y: string) => void;
   setAggFunc: (f: string) => void;
-  setYearFrom: (y: string | null) => void;
-  setYearTo: (y: string | null) => void;
+  setYearFrom: (year: string | null) => void;
+  setYearTo: (year: string | null) => void;
   setPendingChartId: (id: string | null) => void;
 
   // actions
@@ -50,8 +53,9 @@ interface ChartState {
   resetChartState: () => void;
 }
 
+// ==================== STORE ====================
 export const useChartStore = create<ChartState>((set, get) => ({
-  // ==================== STATE ====================
+  // ---------- State ----------
   chartType: "bar",
   xAxis: null,
   yAxis: null,
@@ -64,26 +68,27 @@ export const useChartStore = create<ChartState>((set, get) => ({
   status: null,
   pendingChartId: null,
 
-  // ==================== SETTERS ====================
-  setChartType: (c) => set({ chartType: c }),
+  // ---------- Setters ----------
+  setChartType: (type) => set({ chartType: type }),
   setXAxis: (x) => set({ xAxis: x }),
   setYAxis: (y) => set({ yAxis: y }),
   setAggFunc: (f) => set({ aggFunc: f }),
-  setYearFrom: (y) => set({ yearFrom: y }),
-  setYearTo: (y) => set({ yearTo: y }),
+  setYearFrom: (year) => set({ yearFrom: year }),
+  setYearTo: (year) => set({ yearTo: year }),
   setPendingChartId: (id) => set({ pendingChartId: id }),
 
-  // ==================== ACTIONS ====================
-
-  // Fetch aggregated chart data for preview
+  // ---------- Actions ----------
   fetchData: async () => {
     const { uploadId } = useDatasetStore.getState();
     const { xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
 
-    if (!uploadId || !xAxis || !yAxis) return;
+    if (!uploadId || !xAxis || !yAxis) {
+      toast.error("Please select all required fields before previewing.");
+      return;
+    }
 
     try {
-      const rows = await fetchAggregatedData(
+      const data = await fetchAggregatedData(
         uploadId,
         xAxis,
         yAxis,
@@ -91,25 +96,24 @@ export const useChartStore = create<ChartState>((set, get) => ({
         yearFrom,
         yearTo
       );
-      set({ data: rows });
-    } catch (err: any) {
-      set({ status: err.message });
+      set({ data });
+    } catch (error: any) {
+      set({ status: error.message });
       toast.error("Failed to load chart data.");
     }
   },
 
-  // Save current chart configuration
   saveChart: async () => {
     const { uploadId } = useDatasetStore.getState();
     const { chartType, xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
-
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const name = `${timestamp} | ${chartType.toUpperCase()} | Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`;
 
     if (!uploadId || !xAxis || !yAxis) {
       toast.error("Please select all required fields before saving.");
       return;
     }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const name = `${timestamp} | ${chartType.toUpperCase()} | Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`;
 
     try {
       await postSaveChart(
@@ -123,28 +127,26 @@ export const useChartStore = create<ChartState>((set, get) => ({
         name
       );
       toast.success("Chart saved successfully!");
-      await get().fetchSavedCharts(); // refresh saved charts
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ status: err.message });
+      await get().fetchSavedCharts();
+    } catch (error: any) {
+      set({ status: error.message });
+      toast.error(error.message || "Failed to save chart.");
     }
   },
 
-  // Load all saved charts for the current dataset
   fetchSavedCharts: async () => {
     const { uploadId } = useDatasetStore.getState();
     if (!uploadId) return;
 
     try {
-      const charts = await fetchSavedCharts(uploadId);
-      set({ savedCharts: charts });
-    } catch (err: any) {
-      toast.error("Failed to fetch saved charts");
+      const savedCharts = await fetchSavedCharts(uploadId);
+      set({ savedCharts });
+    } catch {
+      toast.error("Failed to fetch saved charts.");
     }
   },
 
-  // Load a specific chart by ID
-  loadChartById: async (chartId: string) => {
+  loadChartById: async (chartId) => {
     try {
       const chart = await fetchChartById(chartId);
       set({
@@ -157,11 +159,10 @@ export const useChartStore = create<ChartState>((set, get) => ({
         yearTo: chart.year_to?.toString() ?? null,
       });
 
-      // Automatically fetch its data
       await get().fetchData();
       toast.success(`Loaded chart: ${chart.name}`);
-    } catch (err: any) {
-      toast.error("Failed to load chart");
+    } catch {
+      toast.error("Failed to load chart.");
     }
   },
 
