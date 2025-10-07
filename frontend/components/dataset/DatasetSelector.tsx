@@ -74,7 +74,7 @@ export default function DatasetSelector() {
           onClick={() => {
             if (!chosenUploadId) return;
             setUploadId(chosenUploadId);
-            router.push("/analysis");
+            router.push("/charts");
           }}
         >
           Use this dataset

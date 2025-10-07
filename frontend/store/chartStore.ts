@@ -8,7 +8,6 @@ import {
   fetchChartById,
 } from "@/lib/api/chart";
 import { useDatasetStore } from "./datasetStore";
-import { Chathura } from "next/font/google";
 
 interface Chart {
   _id: string;
@@ -32,6 +31,7 @@ interface ChartState {
   savedCharts: Chart[];
   selectedChart: Chart | null;
   status: string | null;
+  pendingChartId: string | null;
 
   // setters
   setChartType: (c: "bar" | "line" | "pie") => void;
@@ -40,12 +40,14 @@ interface ChartState {
   setAggFunc: (f: string) => void;
   setYearFrom: (y: string | null) => void;
   setYearTo: (y: string | null) => void;
+  setPendingChartId: (id: string | null) => void;
 
   // actions
   fetchData: () => Promise<void>;
   saveChart: () => Promise<void>;
   fetchSavedCharts: () => Promise<void>;
   loadChartById: (chartId: string) => Promise<void>;
+  resetChartState: () => void;
 }
 
 export const useChartStore = create<ChartState>((set, get) => ({
@@ -60,6 +62,7 @@ export const useChartStore = create<ChartState>((set, get) => ({
   savedCharts: [],
   selectedChart: null,
   status: null,
+  pendingChartId: null,
 
   // ==================== SETTERS ====================
   setChartType: (c) => set({ chartType: c }),
@@ -68,6 +71,7 @@ export const useChartStore = create<ChartState>((set, get) => ({
   setAggFunc: (f) => set({ aggFunc: f }),
   setYearFrom: (y) => set({ yearFrom: y }),
   setYearTo: (y) => set({ yearTo: y }),
+  setPendingChartId: (id) => set({ pendingChartId: id }),
 
   // ==================== ACTIONS ====================
 
@@ -99,15 +103,8 @@ export const useChartStore = create<ChartState>((set, get) => ({
     const { uploadId } = useDatasetStore.getState();
     const { chartType, xAxis, yAxis, aggFunc, yearFrom, yearTo } = get();
 
-    const name =
-      Date.now().toString() +
-      chartType +
-      " Upload ID: " +
-      uploadId +
-      " - " +
-      xAxis +
-      " vs " +
-      yAxis;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const name = `${timestamp} | ${chartType.toUpperCase()} | Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`;
 
     if (!uploadId || !xAxis || !yAxis) {
       toast.error("Please select all required fields before saving.");
@@ -167,4 +164,18 @@ export const useChartStore = create<ChartState>((set, get) => ({
       toast.error("Failed to load chart");
     }
   },
+
+  resetChartState: () =>
+    set({
+      selectedChart: null,
+      chartType: "bar",
+      xAxis: null,
+      yAxis: null,
+      aggFunc: "sum",
+      yearFrom: null,
+      yearTo: null,
+      data: [],
+      status: null,
+      pendingChartId: null,
+    }),
 }));

@@ -65,7 +65,7 @@ export default function DatasetUploadForm() {
         `success: ${uploaded.rows_inserted} rows processed successfully`
       );
       setFile(null);
-      router.push(`/analysis`);
+      router.push(`/charts`);
     } catch (error: any) {
       setStatus(`error: ${error.message ?? "An unknown error occurred"}`);
     }
