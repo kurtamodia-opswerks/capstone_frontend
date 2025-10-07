@@ -89,23 +89,6 @@ export default function DatasetUploadPage() {
           </Card>
         </div>
 
-        {/* Main Upload Card */}
-        <Card className="bg-white/90 backdrop-blur-sm border shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Upload className="h-6 w-6 text-blue-600" />
-              Dataset Upload & Visualization
-            </CardTitle>
-            <CardDescription>
-              Upload your CSV file and create stunning visualizations with our
-              intuitive tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DatasetUploadForm />
-          </CardContent>
-        </Card>
-
         {/* Expected Columns Template */}
         <Card className="bg-white/90 backdrop-blur-sm border shadow-lg">
           <CardHeader className="pb-4">
@@ -134,6 +117,23 @@ export default function DatasetUploadPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Main Upload Card */}
+        <Card className="bg-white/90 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Upload className="h-6 w-6 text-blue-600" />
+              Dataset Upload & Visualization
+            </CardTitle>
+            <CardDescription>
+              Upload your CSV file and create stunning visualizations with our
+              intuitive tools
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DatasetUploadForm />
           </CardContent>
         </Card>
       </div>

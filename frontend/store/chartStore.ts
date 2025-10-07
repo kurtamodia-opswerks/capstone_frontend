@@ -113,7 +113,7 @@ export const useChartStore = create<ChartState>((set, get) => ({
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const name = `${timestamp} | ${chartType.toUpperCase()} | Upload ID: ${uploadId} - ${xAxis} vs ${yAxis}`;
+    const name = `${timestamp} | ${chartType.toUpperCase()} | Upload ID: ${uploadId} | ${xAxis} vs ${yAxis}`;
 
     try {
       await postSaveChart(
