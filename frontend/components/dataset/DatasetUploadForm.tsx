@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadDataset } from "@/lib/api/dataset";
@@ -30,7 +30,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [status, setStatus] = useState<string | null>(null); // ✅ Local state
+  const [status, setStatus] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFile(e.target.files?.[0] ?? null);
