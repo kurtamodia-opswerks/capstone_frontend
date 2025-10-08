@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadDataset } from "@/lib/api/dataset";
-import DatasetHeaders from "../../app/analysis/page";
 import { useDatasetStore } from "@/store/datasetStore";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  Layers3,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DatasetSelector from "./DatasetSelector";
 import { useRouter } from "next/navigation";
@@ -18,12 +23,20 @@ interface UploadResponse {
   rows_inserted: number;
 }
 
-export default function DatasetUploadForm() {
-  const router = useRouter();
+interface DatasetUploadFormProps {
+  mode: "aggregated" | "dataset";
+}
 
+export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { uploadId, status, setUploadId, setStatus } = useDatasetStore();
+  const { status, uploadId, setUploadId, setStatus, setMode } =
+    useDatasetStore();
+
+  useEffect(() => {
+    setMode(mode);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFile(e.target.files?.[0] ?? null);
@@ -65,7 +78,12 @@ export default function DatasetUploadForm() {
         `success: ${uploaded.rows_inserted} rows processed successfully`
       );
       setFile(null);
-      router.push(`/charts`);
+
+      if (mode === "dataset") {
+        router.push(`/charts?mode=dataset&uploadId=${uploadId}`);
+      } else {
+        setStatus("success: Aggregated dataset updated!");
+      }
     } catch (error: any) {
       setStatus(`error: ${error.message ?? "An unknown error occurred"}`);
     }
@@ -93,10 +111,16 @@ export default function DatasetUploadForm() {
 
           <div className="space-y-2">
             <h3 className="font-semibold text-lg">
-              {file ? "File Selected" : "Upload your dataset"}
+              {file
+                ? "File Selected"
+                : mode === "aggregated"
+                ? "Upload New Data for Aggregated Dataset"
+                : "Upload Your Dataset"}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Drag and drop your CSV file here, or click to browse
+              {mode === "aggregated"
+                ? "Upload a new CSV file to add its records to your historical dataset."
+                : "Drag and drop your CSV file here, or click to browse"}
             </p>
           </div>
 
@@ -116,12 +140,6 @@ export default function DatasetUploadForm() {
               </CardContent>
             </Card>
           )}
-
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm text-muted-foreground">OR</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
-          </div>
 
           <form onSubmit={handleUpload} className="space-y-4">
             <div className="flex gap-3">
@@ -152,12 +170,27 @@ export default function DatasetUploadForm() {
             </div>
           </form>
         </div>
-        <div className="mt-6 border-t pt-4">
-          <h3 className="text-lg font-medium mb-2 text-center text-muted-foreground">
-            or choose from previous uploads
-          </h3>
-          <DatasetSelector />
-        </div>
+
+        {/* Conditional Section */}
+        {mode === "dataset" ? (
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-lg font-medium mb-2 text-center text-muted-foreground">
+              or choose from previous uploads
+            </h3>
+            <DatasetSelector />
+          </div>
+        ) : (
+          <div className="mt-6 border-t pt-4 text-center">
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/charts?mode=aggregated")}
+              className="flex items-center mx-auto gap-2"
+            >
+              <Layers3 className="h-4 w-4" />
+              Use Aggregated Dataset
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Status Alert */}

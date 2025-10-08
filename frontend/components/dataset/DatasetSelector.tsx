@@ -21,7 +21,7 @@ export default function DatasetSelector() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [chosenUploadId, setChosenUploadId] = useState<string>("");
-  const { uploadId, setUploadId } = useDatasetStore();
+  const { setUploadId } = useDatasetStore();
 
   useEffect(() => {
     async function loadUploadIds() {
@@ -74,7 +74,7 @@ export default function DatasetSelector() {
           onClick={() => {
             if (!chosenUploadId) return;
             setUploadId(chosenUploadId);
-            router.push("/charts");
+            router.push(`/charts?mode=dataset&uploadId=${chosenUploadId}`);
           }}
         >
           Use this dataset
