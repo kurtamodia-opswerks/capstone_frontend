@@ -1,4 +1,3 @@
-// components/ChartPreview.tsx
 "use client";
 
 import React, { useRef, useState } from "react";
@@ -6,28 +5,74 @@ import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useChartStore } from "@/store/chartStore";
-import { useDatasetStore } from "@/store/datasetStore";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { postSaveChart } from "@/lib/api/chart";
+import { toast } from "sonner";
 
 export default function ChartPreview({
   chartType,
   data,
   xAxis,
   yAxis,
+  uploadId,
+  aggFunc,
+  yearFrom,
+  yearTo,
 }: {
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
   yAxis: string | null;
+  uploadId?: string | null;
+  aggFunc?: string;
+  yearFrom?: string | null;
+  yearTo?: string | null;
 }) {
-  const { uploadId } = useDatasetStore();
   const [rechartsTime, setRechartsTime] = useState<number | null>(null);
   const [chartjsTime, setChartjsTime] = useState<number | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [chartName, setChartName] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const rechartsStart = useRef<number>(0);
   const chartjsStart = useRef<number>(0);
 
-  const { saveChart } = useChartStore();
+  const handleSaveChart = async () => {
+    if (!xAxis || !yAxis) {
+      toast.error("Missing chart configuration");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await postSaveChart(
+        uploadId || null,
+        chartType,
+        xAxis,
+        yAxis,
+        aggFunc || "sum",
+        yearFrom || null,
+        yearTo || null,
+        chartName
+      );
+      toast.success(`Chart "${res.name}" saved successfully!`);
+      setOpenDialog(false);
+      setChartName("");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to save chart configuration");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -107,12 +152,40 @@ export default function ChartPreview({
 
           {/* Save Chart */}
           <div className="pt-4 flex items-center gap-2">
-            <Button onClick={() => saveChart()} disabled={!xAxis || !yAxis}>
+            <Button
+              onClick={() => setOpenDialog(true)}
+              disabled={!xAxis || !yAxis}
+            >
               Save Chart Configuration
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* ===================== SAVE DIALOG ===================== */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Chart</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Label>Chart Name</Label>
+            <Input
+              placeholder="Enter chart name"
+              value={chartName}
+              onChange={(e) => setChartName(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleSaveChart}
+              disabled={!chartName.trim() || saving}
+            >
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

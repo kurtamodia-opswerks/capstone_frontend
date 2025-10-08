@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Select,
   SelectTrigger,
@@ -17,36 +17,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useDatasetStore } from "@/store/datasetStore";
-import { useChartStore } from "@/store/chartStore";
 import ChartPreview from "./ChartPreview";
 import { BarChart3, LineChart, PieChart, Settings2 } from "lucide-react";
+import { fetchAggregatedData } from "@/lib/api/chart";
 
-export default function ChartControls() {
-  const { headers } = useDatasetStore();
+interface ChartControlsProps {
+  headers: string[];
+  uploadId?: string | null;
+}
 
-  const {
-    chartType,
-    xAxis,
-    yAxis,
-    aggFunc,
-    yearFrom,
-    yearTo,
-    setChartType,
-    setXAxis,
-    setYAxis,
-    setAggFunc,
-    setYearFrom,
-    setYearTo,
-    fetchData,
-    data,
-  } = useChartStore();
-
-  useEffect(() => {
-    if (xAxis && yAxis) {
-      fetchData();
-    }
-  }, [xAxis, yAxis, aggFunc, yearFrom, yearTo]);
+export default function ChartControls({
+  headers,
+  uploadId = null,
+}: ChartControlsProps) {
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [xAxis, setXAxis] = useState<string | null>(null);
+  const [yAxis, setYAxis] = useState<string | null>(null);
+  const [aggFunc, setAggFunc] = useState<string>("sum");
+  const [yearFrom, setYearFrom] = useState<string | null>(null);
+  const [yearTo, setYearTo] = useState<string | null>(null);
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const chartIcons = {
     bar: BarChart3,
@@ -55,6 +47,34 @@ export default function ChartControls() {
   };
 
   const ChartIcon = chartIcons[chartType];
+
+  // Fetch aggregated data when config changes
+  useEffect(() => {
+    console.log(uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo);
+    const fetchData = async () => {
+      if (!xAxis || !yAxis) return;
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetchAggregatedData(
+          uploadId,
+          xAxis,
+          yAxis,
+          aggFunc,
+          yearFrom,
+          yearTo
+        );
+        setData(res);
+      } catch (err: any) {
+        console.error(err);
+        setError("Failed to fetch chart data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo]);
 
   return (
     <div className="space-y-6">
@@ -74,27 +94,30 @@ export default function ChartControls() {
         <CardContent className="space-y-6">
           {/* Chart Type Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Chart Type */}
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <ChartIcon className="h-4 w-4" />
                 Chart Type
               </Label>
-              <Select value={chartType} onValueChange={setChartType}>
+              <Select
+                value={chartType}
+                onValueChange={(val: any) => setChartType(val)}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bar" className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4" />
-                    Bar Chart
+                  <SelectItem value="bar">
+                    <BarChart3 className="h-4 w-4 inline-block mr-2" /> Bar
+                    Chart
                   </SelectItem>
-                  <SelectItem value="line" className="flex items-center gap-2">
-                    <LineChart className="h-4 w-4" />
-                    Line Chart
+                  <SelectItem value="line">
+                    <LineChart className="h-4 w-4 inline-block mr-2" /> Line
+                    Chart
                   </SelectItem>
-                  <SelectItem value="pie" className="flex items-center gap-2">
-                    <PieChart className="h-4 w-4" />
-                    Pie Chart
+                  <SelectItem value="pie">
+                    <PieChart className="h-4 w-4 inline-block mr-2" /> Pie Chart
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -187,16 +210,28 @@ export default function ChartControls() {
               Live Preview
             </CardTitle>
             <CardDescription>
-              Real-time visualization of your data with performance metrics
+              Real-time visualization of your aggregated data
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartPreview
-              chartType={chartType}
-              data={data}
-              xAxis={xAxis}
-              yAxis={yAxis}
-            />
+            {loading ? (
+              <p className="text-center text-gray-500">Loading chart...</p>
+            ) : error ? (
+              <p className="text-center text-red-500">{error}</p>
+            ) : data.length === 0 ? (
+              <p className="text-center text-gray-400">No data available</p>
+            ) : (
+              <ChartPreview
+                chartType={chartType}
+                data={data}
+                xAxis={xAxis}
+                yAxis={yAxis}
+                uploadId={uploadId}
+                aggFunc={aggFunc}
+                yearFrom={yearFrom}
+                yearTo={yearTo}
+              />
+            )}
           </CardContent>
         </Card>
       )}

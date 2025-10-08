@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useChartStore } from "@/store/chartStore";
-import { useDatasetStore } from "@/store/datasetStore";
 import {
   Card,
   CardContent,
@@ -18,35 +15,24 @@ import { useRouter } from "next/navigation";
 interface ChartsPageClientProps {
   mode: "aggregated" | "dataset";
   uploadId: string | null;
-  fetchedData: any[];
   fetchedHeaders: string[];
 }
 
 export default function ChartsPageClient({
   mode,
   uploadId,
-  fetchedData,
   fetchedHeaders,
 }: ChartsPageClientProps) {
   const router = useRouter();
-  const { savedCharts, setPendingChartId, setData } = useChartStore();
-  const { setMode, setUploadId, setHeaders } = useDatasetStore();
-
-  // ✅ Hydrate Zustand
-  useEffect(() => {
-    setMode(mode);
-    setUploadId(uploadId);
-    setHeaders(fetchedHeaders);
-    setData(fetchedData);
-  }, [mode, uploadId, fetchedData, fetchedHeaders]);
-
-  const handleLoadChart = (chartId: string) => {
-    setPendingChartId(chartId);
-    router.push("/analysis?mode=edit");
-  };
 
   const handleCreateChart = () => {
-    router.push("/analysis?mode=new");
+    if (mode === "dataset" && uploadId) {
+      router.push(`/build?mode=${mode}&uploadId=${uploadId}`);
+      return;
+    } else if (mode === "aggregated") {
+      router.push(`/build?mode=${mode}`);
+      return;
+    }
   };
 
   return (
@@ -126,45 +112,6 @@ export default function ChartsPageClient({
             View or reload your saved dataset visualizations
           </CardDescription>
         </CardHeader>
-
-        <CardContent>
-          {savedCharts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No saved visualizations found. Click{" "}
-              <span className="font-semibold">“Create New Chart”</span> above to
-              start one.
-            </p>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedCharts.map((chart) => (
-                <Card
-                  key={chart._id}
-                  className="border border-gray-200 hover:border-blue-400 transition-colors"
-                >
-                  <CardContent className="p-4">
-                    <h5 className="font-medium text-gray-900 truncate mb-1">
-                      {chart.name}
-                    </h5>
-                    <p className="text-xs text-gray-600 mb-3">
-                      Type: {chart.chart_type.toUpperCase()} •{" "}
-                      {chart.agg_func.toUpperCase()}
-                    </p>
-                    <p className="text-xs text-gray-500 mb-3 truncate">
-                      {chart.x_axis} vs {chart.y_axis}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleLoadChart(chart._id)}
-                    >
-                      Load Chart
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
       </Card>
     </div>
   );
