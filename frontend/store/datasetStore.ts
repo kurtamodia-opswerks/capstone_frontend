@@ -1,33 +1,35 @@
-// store/datasetStore.ts
 import { create } from "zustand";
-import { fetchDatasetColumns } from "@/lib/api/dataset";
 
 interface DatasetState {
-  uploadId: string | null;
-  headers: string[];
-  status: string | null;
+  mode: "aggregated" | "dataset"; // current mode
+  uploadId: string | null; // selected dataset ID
+  headers: string[]; // headers for specific dataset
+  allHeaders: string[]; // headers for aggregated data
+  records: any[]; // fetched rows
+  status: string | null; // loading/error/success messages
 
-  setUploadId: (id: string) => void;
-  setStatus: (s: string) => void;
-  fetchHeaders: () => Promise<void>;
+  // setters only
+  setMode: (mode: "aggregated" | "dataset") => void;
+  setUploadId: (id: string | null) => void;
+  setHeaders: (headers: string[]) => void;
+  setAllHeaders: (headers: string[]) => void;
+  setRecords: (records: any[]) => void;
+  setStatus: (status: string | null) => void;
 }
 
-export const useDatasetStore = create<DatasetState>((set, get) => ({
+export const useDatasetStore = create<DatasetState>((set) => ({
+  mode: "aggregated",
   uploadId: null,
   headers: [],
+  allHeaders: [],
+  records: [],
   status: null,
 
+  // ✅ Setters only
+  setMode: (mode) => set({ mode }),
   setUploadId: (id) => set({ uploadId: id }),
-  setStatus: (s) => set({ status: s }),
-
-  fetchHeaders: async () => {
-    const { uploadId } = get();
-    if (!uploadId) return;
-    try {
-      const result = await fetchDatasetColumns(uploadId);
-      set({ headers: result.valid_headers });
-    } catch (err: any) {
-      set({ status: err.message });
-    }
-  },
+  setHeaders: (headers) => set({ headers }),
+  setAllHeaders: (headers) => set({ allHeaders: headers }),
+  setRecords: (records) => set({ records }),
+  setStatus: (status) => set({ status }),
 }));
