@@ -29,7 +29,7 @@ export async function fetchAggregatedData(
 }
 
 export async function postSaveChart(
-  uploadId: string,
+  uploadId: string | null,
   chartType: string,
   xAxis: string,
   yAxis: string,
