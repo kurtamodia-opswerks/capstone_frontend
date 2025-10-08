@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +14,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { postSaveChart } from "@/lib/api/chart";
 import { toast } from "sonner";
+import { useSaveChart } from "@/hooks/useSaveChart";
+import { useRenderTimer } from "@/hooks/useRenderTimer";
 
 export default function ChartPreview({
   chartType,
@@ -36,14 +37,13 @@ export default function ChartPreview({
   yearFrom?: string | null;
   yearTo?: string | null;
 }) {
-  const [rechartsTime, setRechartsTime] = useState<number | null>(null);
-  const [chartjsTime, setChartjsTime] = useState<number | null>(null);
+  const { saveChart, saving } = useSaveChart();
+
   const [openDialog, setOpenDialog] = useState(false);
   const [chartName, setChartName] = useState("");
-  const [saving, setSaving] = useState(false);
 
-  const rechartsStart = useRef<number>(0);
-  const chartjsStart = useRef<number>(0);
+  const rechartsTimer = useRenderTimer();
+  const chartjsTimer = useRenderTimer();
 
   const handleSaveChart = async () => {
     if (!xAxis || !yAxis) {
@@ -51,27 +51,18 @@ export default function ChartPreview({
       return;
     }
 
-    try {
-      setSaving(true);
-      const res = await postSaveChart(
-        uploadId || null,
-        chartType,
-        xAxis,
-        yAxis,
-        aggFunc || "sum",
-        yearFrom || null,
-        yearTo || null,
-        chartName
-      );
-      toast.success(`Chart "${res.name}" saved successfully!`);
-      setOpenDialog(false);
-      setChartName("");
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to save chart configuration");
-    } finally {
-      setSaving(false);
-    }
+    await saveChart({
+      uploadId,
+      chartType,
+      xAxis,
+      yAxis,
+      aggFunc,
+      yearFrom,
+      yearTo,
+      chartName,
+    });
+    setOpenDialog(false);
+    setChartName("");
   };
 
   return (
@@ -81,7 +72,10 @@ export default function ChartPreview({
         <h4 className="text-sm font-semibold text-gray-800 mb-2">
           Recharts{" "}
           <span className="text-xs text-gray-500">
-            (Render Time: {rechartsTime ? `${rechartsTime.toFixed(1)} ms` : "–"}
+            (Render Time:{" "}
+            {rechartsTimer.renderTime
+              ? `${rechartsTimer.renderTime.toFixed(1)} ms`
+              : "–"}
             )
           </span>
         </h4>
@@ -91,10 +85,8 @@ export default function ChartPreview({
           data={data}
           xAxis={xAxis}
           yAxis={yAxis}
-          onRenderStart={() => (rechartsStart.current = performance.now())}
-          onRenderEnd={() =>
-            setRechartsTime(performance.now() - rechartsStart.current)
-          }
+          onRenderStart={rechartsTimer.onRenderStart}
+          onRenderEnd={rechartsTimer.onRenderEnd}
         />
       </div>
 
@@ -103,7 +95,11 @@ export default function ChartPreview({
         <h4 className="text-sm font-semibold text-gray-800 mb-2">
           Chart.js{" "}
           <span className="text-xs text-gray-500">
-            (Render Time: {chartjsTime ? `${chartjsTime.toFixed(1)} ms` : "–"})
+            (Render Time:{" "}
+            {chartjsTimer.renderTime
+              ? `${chartjsTimer.renderTime.toFixed(1)} ms`
+              : "–"}
+            )
           </span>
         </h4>
 
@@ -112,10 +108,8 @@ export default function ChartPreview({
           data={data}
           xAxis={xAxis}
           yAxis={yAxis}
-          onRenderStart={() => (chartjsStart.current = performance.now())}
-          onRenderEnd={() =>
-            setChartjsTime(performance.now() - chartjsStart.current)
-          }
+          onRenderStart={chartjsTimer.onRenderStart}
+          onRenderEnd={chartjsTimer.onRenderEnd}
         />
       </div>
 
@@ -128,16 +122,20 @@ export default function ChartPreview({
           <ul className="text-sm space-y-1 text-gray-700">
             <li>
               <span className="font-medium text-blue-600">Recharts:</span>{" "}
-              {rechartsTime ? `${rechartsTime.toFixed(2)} ms` : "–"}
+              {rechartsTimer.renderTime
+                ? `${rechartsTimer.renderTime.toFixed(2)} ms`
+                : "–"}
             </li>
             <li>
               <span className="font-medium text-green-600">Chart.js:</span>{" "}
-              {chartjsTime ? `${chartjsTime.toFixed(2)} ms` : "–"}
+              {chartjsTimer.renderTime
+                ? `${chartjsTimer.renderTime.toFixed(2)} ms`
+                : "–"}
             </li>
-            {rechartsTime && chartjsTime && (
+            {rechartsTimer.renderTime && chartjsTimer.renderTime && (
               <li className="pt-2 text-gray-800">
                 <span className="font-medium">Faster Library:</span>{" "}
-                {rechartsTime < chartjsTime ? (
+                {rechartsTimer.renderTime < chartjsTimer.renderTime ? (
                   <span className="text-blue-600 font-semibold">
                     Recharts 🚀
                   </span>
