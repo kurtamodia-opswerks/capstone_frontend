@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadDataset } from "@/lib/api/dataset";
-import { useDatasetStore } from "@/store/datasetStore";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Upload,
@@ -31,12 +30,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { status, uploadId, setUploadId, setStatus, setMode } =
-    useDatasetStore();
-
-  useEffect(() => {
-    setMode(mode);
-  }, []);
+  const [status, setStatus] = useState<string | null>(null); // ✅ Local state
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFile(e.target.files?.[0] ?? null);
@@ -59,28 +53,28 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
     if (droppedFile && droppedFile.type === "text/csv") {
       setFile(droppedFile);
     } else {
-      setStatus("Please drop a valid CSV file");
+      setStatus("error: Please drop a valid CSV file");
     }
   };
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!file) {
-      setStatus("Please select a CSV file first.");
+      setStatus("error: Please select a CSV file first.");
       return;
     }
 
     setStatus("uploading");
     try {
       const uploaded: UploadResponse = await uploadDataset(file);
-      setUploadId(uploaded.upload_id);
       setStatus(
         `success: ${uploaded.rows_inserted} rows processed successfully`
       );
       setFile(null);
 
       if (mode === "dataset") {
-        router.push(`/charts?mode=dataset&uploadId=${uploadId}`);
+        router.push(`/charts?mode=dataset&uploadId=${uploaded.upload_id}`);
       } else {
         setStatus("success: Aggregated dataset updated!");
       }

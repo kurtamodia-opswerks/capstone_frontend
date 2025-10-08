@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAllUploadIds } from "@/lib/api/dataset";
-import { useDatasetStore } from "@/store/datasetStore";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,7 +20,6 @@ export default function DatasetSelector() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [chosenUploadId, setChosenUploadId] = useState<string>("");
-  const { setUploadId } = useDatasetStore();
 
   useEffect(() => {
     async function loadUploadIds() {
@@ -73,7 +71,6 @@ export default function DatasetSelector() {
           className="mt-2"
           onClick={() => {
             if (!chosenUploadId) return;
-            setUploadId(chosenUploadId);
             router.push(`/charts?mode=dataset&uploadId=${chosenUploadId}`);
           }}
         >
