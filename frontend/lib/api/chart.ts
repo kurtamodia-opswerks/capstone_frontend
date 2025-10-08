@@ -1,7 +1,7 @@
 // lib/api/chart.ts
 
 export async function fetchAggregatedData(
-  uploadId: string,
+  uploadId: string | null,
   xAxis: string,
   yAxis: string,
   aggFunc: string,
@@ -14,7 +14,7 @@ export async function fetchAggregatedData(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        upload_id: uploadId,
+        upload_id: uploadId || null,
         x_axis: xAxis,
         y_axis: yAxis,
         agg_func: aggFunc,

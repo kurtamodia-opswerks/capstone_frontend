@@ -21,10 +21,6 @@ interface ChartState {
   yearFrom: string | null;
   yearTo: string | null;
   data: any[];
-  savedCharts: Chart[];
-  selectedChart: Chart | null;
-  status: string | null;
-  pendingChartId: string | null;
 
   // setters only
   setChartType: (type: ChartType) => void;
@@ -34,11 +30,6 @@ interface ChartState {
   setYearFrom: (year: string | null) => void;
   setYearTo: (year: string | null) => void;
   setData: (data: any[]) => void;
-  setSavedCharts: (charts: Chart[]) => void;
-  setSelectedChart: (chart: Chart | null) => void;
-  setStatus: (status: string | null) => void;
-  setPendingChartId: (id: string | null) => void;
-  resetChartState: () => void;
 }
 
 export const useChartStore = create<ChartState>((set) => ({
@@ -49,10 +40,6 @@ export const useChartStore = create<ChartState>((set) => ({
   yearFrom: null,
   yearTo: null,
   data: [],
-  savedCharts: [],
-  selectedChart: null,
-  status: null,
-  pendingChartId: null,
 
   // ---------- Setters ----------
   setChartType: (type) => set({ chartType: type }),
@@ -62,10 +49,6 @@ export const useChartStore = create<ChartState>((set) => ({
   setYearFrom: (year) => set({ yearFrom: year }),
   setYearTo: (year) => set({ yearTo: year }),
   setData: (data) => set({ data }),
-  setSavedCharts: (charts) => set({ savedCharts: charts }),
-  setSelectedChart: (chart) => set({ selectedChart: chart }),
-  setStatus: (status) => set({ status }),
-  setPendingChartId: (id) => set({ pendingChartId: id }),
 
   resetChartState: () =>
     set({
@@ -76,9 +59,5 @@ export const useChartStore = create<ChartState>((set) => ({
       yearFrom: null,
       yearTo: null,
       data: [],
-      savedCharts: [],
-      selectedChart: null,
-      status: null,
-      pendingChartId: null,
     }),
 }));
