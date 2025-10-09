@@ -1,4 +1,3 @@
-// lib/api/chart.ts
 export async function fetchAggregatedData(
   uploadId: string | null,
   xAxis: string,
@@ -87,5 +86,47 @@ export async function fetchChartById(chartId: string) {
     `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/chart/${chartId}`
   );
   if (!res.ok) throw new Error("Chart not found");
+  return res.json();
+}
+
+// ============================================
+// 🆕 Update Chart (PUT /chart/update/{chart_id})
+// ============================================
+export async function updateChart(
+  chartId: string,
+  updatedData: {
+    mode?: "aggregated" | "dataset";
+    uploadId?: string | null;
+    chartType?: string;
+    xAxis?: string;
+    yAxis?: string;
+    aggFunc?: string;
+    yearFrom?: string | null;
+    yearTo?: string | null;
+    chartName?: string;
+  }
+) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/chart/update/${chartId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: updatedData.mode,
+        upload_id: updatedData.uploadId,
+        chart_type: updatedData.chartType,
+        x_axis: updatedData.xAxis,
+        y_axis: updatedData.yAxis,
+        agg_func: updatedData.aggFunc,
+        year_from: updatedData.yearFrom
+          ? Number(updatedData.yearFrom)
+          : undefined,
+        year_to: updatedData.yearTo ? Number(updatedData.yearTo) : undefined,
+        name: updatedData.chartName,
+      }),
+    }
+  );
+
+  if (!res.ok) throw new Error("Failed to update chart");
   return res.json();
 }
