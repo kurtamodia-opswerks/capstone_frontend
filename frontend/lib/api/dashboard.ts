@@ -1,21 +1,7 @@
-// lib/api/dashboard.ts
-
-export interface ChartData {
-  mode: "aggregated" | "dataset";
-  upload_id?: string | null;
-  chart_type: string;
-  x_axis: string;
-  y_axis: string;
-  agg_func: string;
-  year_from?: number | null;
-  year_to?: number | null;
-  name: string;
-}
-
 export interface DashboardData {
   mode: "aggregated" | "dataset";
   upload_id?: string | null;
-  charts: ChartData[];
+  chart_id?: string;
 }
 
 // ===========================
@@ -28,22 +14,11 @@ export async function addToDashboard(dashboard: DashboardData) {
     body: JSON.stringify(dashboard),
   });
 
-  if (!res.ok) throw new Error("Failed to add/update dashboard");
-  return res.json();
-}
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to add/update dashboard: ${errText}`);
+  }
 
-// ===========================
-// Get a dashboard
-// ===========================
-export async function fetchDashboard(
-  mode: "aggregated" | "dataset",
-  uploadId: string | null
-) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${mode}/${uploadId}`
-  );
-
-  if (!res.ok) throw new Error("Dashboard not found");
   return res.json();
 }
 
@@ -52,15 +27,33 @@ export async function fetchDashboard(
 // ===========================
 export async function removeChartFromDashboard(
   dashboardId: string,
-  chartName: string
+  chartId: string
 ) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${dashboardId}/${chartName}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${dashboardId}/${chartId}`,
     {
       method: "DELETE",
     }
   );
 
-  if (!res.ok) throw new Error("Failed to remove chart from dashboard");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to remove chart from dashboard: ${errText}`);
+  }
+
+  return res.json();
+}
+
+export async function fetchDashboard(mode: string, uploadId: string | null) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${mode}/${uploadId}`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to fetch dashboard: ${errText}`);
+  }
+
   return res.json();
 }
