@@ -20,6 +20,7 @@ interface UploadResponse {
   message: string;
   upload_id: string;
   rows_inserted: number;
+  rows_skipped: number;
 }
 
 interface DatasetUploadFormProps {
@@ -69,14 +70,16 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
     try {
       const uploaded: UploadResponse = await uploadDataset(file);
       setStatus(
-        `success: ${uploaded.rows_inserted} rows processed successfully`
+        `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
       );
       setFile(null);
 
       if (mode === "dataset") {
         router.push(`/charts?mode=dataset&uploadId=${uploaded.upload_id}`);
       } else {
-        setStatus("success: Aggregated dataset updated!");
+        setStatus(
+          `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+        );
       }
     } catch (error: any) {
       setStatus(`error: ${error.message ?? "An unknown error occurred"}`);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { useSaveChart } from "@/hooks/useSaveChart";
 import { useRenderTimer } from "@/hooks/useRenderTimer";
+import { updateChart } from "@/lib/api/chart";
 
 export default function ChartPreview({
   mode,
@@ -28,6 +30,7 @@ export default function ChartPreview({
   aggFunc,
   yearFrom,
   yearTo,
+  showPerformancePanel = true,
 }: {
   mode: "aggregated" | "dataset";
   chartType: "bar" | "line" | "pie";
@@ -38,9 +41,13 @@ export default function ChartPreview({
   aggFunc?: string;
   yearFrom?: string | null;
   yearTo?: string | null;
+  showPerformancePanel?: boolean;
 }) {
-  const { saveChart, saving } = useSaveChart();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const chartId = searchParams.get("chartId");
 
+  const { saveChart, saving } = useSaveChart();
   const [openDialog, setOpenDialog] = useState(false);
   const [chartName, setChartName] = useState("");
 
@@ -53,19 +60,43 @@ export default function ChartPreview({
       return;
     }
 
-    await saveChart({
-      mode,
-      uploadId,
-      chartType,
-      xAxis,
-      yAxis,
-      aggFunc,
-      yearFrom,
-      yearTo,
-      chartName,
-    });
-    setOpenDialog(false);
-    setChartName("");
+    try {
+      if (chartId) {
+        await updateChart(chartId, {
+          mode,
+          uploadId,
+          chartType,
+          xAxis,
+          yAxis,
+          aggFunc,
+          yearFrom,
+          yearTo,
+          chartName,
+        });
+        toast.success("Chart updated successfully");
+      } else {
+        await saveChart({
+          mode,
+          uploadId,
+          chartType,
+          xAxis,
+          yAxis,
+          aggFunc,
+          yearFrom,
+          yearTo,
+          chartName,
+        });
+        toast.success("Chart saved successfully");
+      }
+
+      setOpenDialog(false);
+      setChartName("");
+      router.back();
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to save chart");
+      console.error(error);
+    }
   };
 
   return (
@@ -117,57 +148,61 @@ export default function ChartPreview({
       </div>
 
       {/* ===================== PERFORMANCE PANEL ===================== */}
-      <Card className="bg-gray-50 border-gray-200">
-        <CardContent className="p-4 space-y-4">
-          <h4 className="font-semibold text-gray-800">
-            Performance Comparison
-          </h4>
-          <ul className="text-sm space-y-1 text-gray-700">
-            <li>
-              <span className="font-medium text-blue-600">Recharts:</span>{" "}
-              {rechartsTimer.renderTime
-                ? `${rechartsTimer.renderTime.toFixed(2)} ms`
-                : "–"}
-            </li>
-            <li>
-              <span className="font-medium text-green-600">Chart.js:</span>{" "}
-              {chartjsTimer.renderTime
-                ? `${chartjsTimer.renderTime.toFixed(2)} ms`
-                : "–"}
-            </li>
-            {rechartsTimer.renderTime && chartjsTimer.renderTime && (
-              <li className="pt-2 text-gray-800">
-                <span className="font-medium">Faster Library:</span>{" "}
-                {rechartsTimer.renderTime < chartjsTimer.renderTime ? (
-                  <span className="text-blue-600 font-semibold">
-                    Recharts 🚀
-                  </span>
-                ) : (
-                  <span className="text-green-600 font-semibold">
-                    Chart.js ⚡
-                  </span>
-                )}
+      {showPerformancePanel && (
+        <Card className="bg-gray-50 border-gray-200">
+          <CardContent className="p-4 space-y-4">
+            <h4 className="font-semibold text-gray-800">
+              Performance Comparison
+            </h4>
+            <ul className="text-sm space-y-1 text-gray-700">
+              <li>
+                <span className="font-medium text-blue-600">Recharts:</span>{" "}
+                {rechartsTimer.renderTime
+                  ? `${rechartsTimer.renderTime.toFixed(2)} ms`
+                  : "–"}
               </li>
-            )}
-          </ul>
+              <li>
+                <span className="font-medium text-green-600">Chart.js:</span>{" "}
+                {chartjsTimer.renderTime
+                  ? `${chartjsTimer.renderTime.toFixed(2)} ms`
+                  : "–"}
+              </li>
+              {rechartsTimer.renderTime && chartjsTimer.renderTime && (
+                <li className="pt-2 text-gray-800">
+                  <span className="font-medium">Faster Library:</span>{" "}
+                  {rechartsTimer.renderTime < chartjsTimer.renderTime ? (
+                    <span className="text-blue-600 font-semibold">
+                      Recharts 🚀
+                    </span>
+                  ) : (
+                    <span className="text-green-600 font-semibold">
+                      Chart.js ⚡
+                    </span>
+                  )}
+                </li>
+              )}
+            </ul>
 
-          {/* Save Chart */}
-          <div className="pt-4 flex items-center gap-2">
-            <Button
-              onClick={() => setOpenDialog(true)}
-              disabled={!xAxis || !yAxis}
-            >
-              Save Chart Configuration
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Save Chart */}
+            <div className="pt-4 flex items-center gap-2">
+              <Button
+                onClick={() => setOpenDialog(true)}
+                disabled={!xAxis || !yAxis}
+              >
+                {chartId ? "Update Chart" : "Save Chart Configuration"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* ===================== SAVE DIALOG ===================== */}
+      {/* ===================== SAVE / UPDATE DIALOG ===================== */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Save Chart</DialogTitle>
+            <DialogTitle>
+              {chartId ? "Update Existing Chart" : "Save New Chart"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <Label>Chart Name</Label>
@@ -182,7 +217,13 @@ export default function ChartPreview({
               onClick={handleSaveChart}
               disabled={!chartName.trim() || saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving
+                ? chartId
+                  ? "Updating..."
+                  : "Saving..."
+                : chartId
+                ? "Update"
+                : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>

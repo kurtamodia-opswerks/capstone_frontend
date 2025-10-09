@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { addToDashboard } from "@/lib/api/dashboard";
 
 interface ChartsPageClientProps {
   mode: "aggregated" | "dataset";
@@ -23,32 +24,51 @@ export default function ChartsPageClient({
   mode,
   uploadId,
   fetchedHeaders,
-  savedCharts,
+  savedCharts = [],
 }: ChartsPageClientProps) {
   const router = useRouter();
-
+  // =======================================
+  // Create new chart button
+  // =======================================
   const handleCreateChart = () => {
-    if (mode === "dataset" && uploadId) {
-      router.push(`/build?mode=${mode}&uploadId=${uploadId}`);
-      return;
-    } else if (mode === "aggregated") {
-      router.push(`/build?mode=${mode}`);
-      return;
-    }
+    const params = new URLSearchParams({ mode });
+    if (uploadId) params.set("uploadId", uploadId);
+    router.push(`/build?${params.toString()}`);
   };
 
+  // =======================================
+  // Load existing chart into builder
+  // =======================================
   const handleLoadChart = (chart: any) => {
-    const params = new URLSearchParams();
-
-    params.set("mode", mode);
-    params.set("chartId", chart._id);
-
-    // only include uploadId if it's present
-    if (uploadId) {
-      params.set("uploadId", uploadId);
-    }
-
+    const params = new URLSearchParams({
+      mode,
+      chartId: chart._id,
+    });
+    if (uploadId) params.set("uploadId", uploadId);
     router.push(`/build?${params.toString()}`);
+  };
+
+  const handleViewDashboard = () => {
+    const params = new URLSearchParams({ mode });
+    if (uploadId) params.set("uploadId", uploadId);
+    router.push(`/dashboard?${params.toString()}`);
+  };
+
+  // =======================================
+  // Add chart to dashboard (by ID)
+  // =======================================
+  const handleAddToDashboard = async (chart_id: string) => {
+    const payload = {
+      mode,
+      upload_id: uploadId,
+      chart_id,
+    };
+
+    try {
+      const response = await addToDashboard(payload);
+    } catch (err) {
+      console.error("Failed to update dashboard:", err);
+    }
   };
 
   return (
@@ -68,22 +88,35 @@ export default function ChartsPageClient({
       {/* Dataset Info */}
       {fetchedHeaders.length > 0 && (
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              <div>
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Database className="h-5 w-5 text-blue-600" />
-                  Dataset Structure
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload ID: {uploadId ?? "N/A"}
-                </p>
-              </div>
-            </CardTitle>
-            <CardDescription>
-              {fetchedHeaders.length} valid columns detected in your dataset
-            </CardDescription>
+          <CardHeader className="pb-3 flex items-center justify-between">
+            {/* Left side: dataset info */}
+            <div>
+              <CardTitle className="text-base">
+                <div>
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Database className="h-5 w-5 text-blue-600" />
+                    Dataset Structure
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload ID: {uploadId ?? "N/A"}
+                  </p>
+                </div>
+              </CardTitle>
+              <CardDescription>
+                {fetchedHeaders.length} valid columns detected in your dataset
+              </CardDescription>
+            </div>
+
+            {/* Right side: Go to Dashboard button */}
+            <Button
+              variant="outline"
+              className="text-sm"
+              onClick={() => handleViewDashboard()}
+            >
+              Go to Dashboard
+            </Button>
           </CardHeader>
+
           <CardContent>
             <div className="flex flex-wrap gap-2 mb-6">
               {fetchedHeaders.map((header) => (
@@ -125,11 +158,11 @@ export default function ChartsPageClient({
             My Saved Charts
           </CardTitle>
           <CardDescription>
-            View or reload your saved dataset visualizations
+            View, load, or add your saved charts to a dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {savedCharts && savedCharts.length > 0 ? (
+          {savedCharts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedCharts.map((chart) => (
                 <Card key={chart._id} className="border-gray-200">
@@ -138,12 +171,20 @@ export default function ChartsPageClient({
                       {chart.name}
                     </h4>
                     <p className="text-sm text-blue-700">{chart.chart_type}</p>
-                    <Button
-                      onClick={() => handleLoadChart(chart)}
-                      className="mt-3 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Load
-                    </Button>
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        onClick={() => handleLoadChart(chart)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Load
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleAddToDashboard(chart._id)}
+                      >
+                        Add to Dashboard
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
