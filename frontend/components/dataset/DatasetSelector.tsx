@@ -67,7 +67,7 @@ export default function DatasetSelector() {
       </Select>
       {chosenUploadId && (
         <Button
-          variant="outline"
+          variant="default"
           className="mt-2"
           onClick={() => {
             if (!chosenUploadId) return;

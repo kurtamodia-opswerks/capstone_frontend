@@ -178,8 +178,11 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
           </div>
         ) : (
           <div className="mt-6 border-t pt-4 text-center">
+            <h3 className="text-lg font-medium mb-6 text-center text-muted-foreground">
+              or use the latest aggregated dataset
+            </h3>
             <Button
-              variant="secondary"
+              variant="default"
               onClick={() => router.push("/charts?mode=aggregated")}
               className="flex items-center mx-auto gap-2"
             >
