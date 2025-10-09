@@ -1,5 +1,4 @@
 // lib/api/chart.ts
-
 export async function fetchAggregatedData(
   uploadId: string | null,
   xAxis: string,
@@ -29,6 +28,7 @@ export async function fetchAggregatedData(
 }
 
 export async function postSaveChart(
+  mode: "aggregated" | "dataset",
   uploadId: string | null,
   chartType: string,
   xAxis: string,
@@ -42,6 +42,7 @@ export async function postSaveChart(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      mode,
       upload_id: uploadId,
       chart_type: chartType,
       x_axis: xAxis,
@@ -57,12 +58,28 @@ export async function postSaveChart(
   return res.json();
 }
 
-export async function fetchSavedCharts(uploadId: string) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/${uploadId}`
-  );
-  if (!res.ok) throw new Error("Failed to fetch saved charts");
-  return res.json();
+export async function fetchSavedCharts(mode: string, uploadId: string | null) {
+  if (mode === "aggregated") {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/all`
+      );
+      if (!res.ok) throw new Error("Failed to fetch saved charts");
+      return res.json();
+    } catch (err) {
+      console.error(err);
+    }
+  } else if (mode === "dataset" && uploadId) {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/${uploadId}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch saved charts");
+      return res.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 export async function fetchChartById(chartId: string) {
