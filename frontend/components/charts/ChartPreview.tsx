@@ -19,6 +19,7 @@ import { useSaveChart } from "@/hooks/useSaveChart";
 import { useRenderTimer } from "@/hooks/useRenderTimer";
 
 export default function ChartPreview({
+  mode,
   chartType,
   data,
   xAxis,
@@ -28,6 +29,7 @@ export default function ChartPreview({
   yearFrom,
   yearTo,
 }: {
+  mode: "aggregated" | "dataset";
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
@@ -52,6 +54,7 @@ export default function ChartPreview({
     }
 
     await saveChart({
+      mode,
       uploadId,
       chartType,
       xAxis,

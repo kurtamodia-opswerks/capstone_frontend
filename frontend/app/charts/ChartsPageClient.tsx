@@ -16,12 +16,14 @@ interface ChartsPageClientProps {
   mode: "aggregated" | "dataset";
   uploadId: string | null;
   fetchedHeaders: string[];
+  savedCharts?: any[];
 }
 
 export default function ChartsPageClient({
   mode,
   uploadId,
   fetchedHeaders,
+  savedCharts,
 }: ChartsPageClientProps) {
   const router = useRouter();
 
@@ -33,6 +35,20 @@ export default function ChartsPageClient({
       router.push(`/build?mode=${mode}`);
       return;
     }
+  };
+
+  const handleLoadChart = (chart: any) => {
+    const params = new URLSearchParams();
+
+    params.set("mode", mode);
+    params.set("chartId", chart._id);
+
+    // only include uploadId if it's present
+    if (uploadId) {
+      params.set("uploadId", uploadId);
+    }
+
+    router.push(`/build?${params.toString()}`);
   };
 
   return (
@@ -112,6 +128,32 @@ export default function ChartsPageClient({
             View or reload your saved dataset visualizations
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          {savedCharts && savedCharts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {savedCharts.map((chart) => (
+                <Card key={chart._id} className="border-gray-200">
+                  <CardContent className="p-4">
+                    <h4 className="font-medium text-blue-900 mb-2">
+                      {chart.name}
+                    </h4>
+                    <p className="text-sm text-blue-700">{chart.chart_type}</p>
+                    <Button
+                      onClick={() => handleLoadChart(chart)}
+                      className="mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Load
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No saved charts found.
+            </p>
+          )}
+        </CardContent>
       </Card>
     </div>
   );

@@ -24,18 +24,41 @@ import { fetchAggregatedData } from "@/lib/api/chart";
 interface ChartControlsProps {
   headers: string[];
   uploadId?: string | null;
+  mode: "aggregated" | "dataset";
+  initialConfig?: {
+    chartType?: string;
+    xAxis?: string;
+    yAxis?: string;
+    aggFunc?: string;
+    yearFrom?: string;
+    yearTo?: string;
+  };
 }
 
 export default function ChartControls({
   headers,
   uploadId = null,
+  mode = "aggregated",
+  initialConfig = {},
 }: ChartControlsProps) {
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [xAxis, setXAxis] = useState<string | null>(null);
-  const [yAxis, setYAxis] = useState<string | null>(null);
-  const [aggFunc, setAggFunc] = useState<string>("sum");
-  const [yearFrom, setYearFrom] = useState<string | null>(null);
-  const [yearTo, setYearTo] = useState<string | null>(null);
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">(
+    (initialConfig?.chartType as any) || "bar"
+  );
+  const [xAxis, setXAxis] = useState<string | null>(
+    initialConfig?.xAxis || null
+  );
+  const [yAxis, setYAxis] = useState<string | null>(
+    initialConfig?.yAxis || null
+  );
+  const [aggFunc, setAggFunc] = useState<string>(
+    initialConfig?.aggFunc || "sum"
+  );
+  const [yearFrom, setYearFrom] = useState<string | null>(
+    initialConfig?.yearFrom || null
+  );
+  const [yearTo, setYearTo] = useState<string | null>(
+    initialConfig?.yearTo || null
+  );
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -222,6 +245,7 @@ export default function ChartControls({
               <p className="text-center text-gray-400">No data available</p>
             ) : (
               <ChartPreview
+                mode={mode}
                 chartType={chartType}
                 data={data}
                 xAxis={xAxis}
