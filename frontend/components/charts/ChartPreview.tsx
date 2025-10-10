@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useSaveChart } from "@/hooks/useSaveChart";
 import { useRenderTimer } from "@/hooks/useRenderTimer";
 import { updateChart } from "@/lib/api/chart";
-import { useChartsStore } from "@/store/dataStore";
+import { useDataStore } from "@/store/dataStore";
 
 export default function ChartPreview({
   mode,
@@ -44,7 +44,7 @@ export default function ChartPreview({
   yearTo?: string | null;
   showPerformancePanel?: boolean;
 }) {
-  const { refreshCharts } = useChartsStore();
+  const { refreshCharts } = useDataStore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const chartId = searchParams.get("chartId");

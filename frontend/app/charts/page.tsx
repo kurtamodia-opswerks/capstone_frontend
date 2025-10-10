@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { addToDashboard, fetchDashboard } from "@/lib/api/dashboard";
-import { useChartsStore } from "@/store/dataStore";
+import { useDataStore } from "@/store/dataStore";
 
 export default function ChartsPageClient() {
   const searchParams = useSearchParams();
@@ -24,7 +24,7 @@ export default function ChartsPageClient() {
     searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
   const uploadId = searchParams.get("uploadId");
 
-  const { headers, savedCharts, refreshCharts } = useChartsStore();
+  const { headers, savedCharts, refreshCharts } = useDataStore();
   const [dashboardCharts, setDashboardCharts] = useState<string[]>([]);
 
   // ===============================

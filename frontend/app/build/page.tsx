@@ -1,41 +1,49 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import ChartControls from "@/components/charts/ChartControls";
+import { useDataStore } from "@/store/dataStore";
 import { fetchChartById } from "@/lib/api/chart";
-import ChartControls from "../../components/charts/ChartControls";
-import { getFetchedHeaders } from "@/lib/utils";
 
-interface BuildPageProps {
-  searchParams?: {
-    mode?: string;
-    uploadId?: string;
-    chartId?: string;
-  };
-}
+export default function BuildPage() {
+  const searchParams = useSearchParams();
+  const mode =
+    searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
+  const uploadId = searchParams.get("uploadId");
+  const chartId = searchParams.get("chartId");
 
-export default async function Build({ searchParams }: BuildPageProps) {
-  const mode = searchParams?.mode === "dataset" ? "dataset" : "aggregated";
-  const uploadId = searchParams?.uploadId || null;
-  const chartId = searchParams?.chartId || null;
+  const { headers, refreshCharts } = useDataStore();
+  const [initialConfig, setInitialConfig] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  let chartData: any = null;
+  // Fetch data and chart details
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        await refreshCharts(mode, uploadId || null);
 
-  // Fetch saved chart if chartId is provided
-  if (chartId) {
-    chartData = await fetchChartById(chartId);
-  }
-
-  // Fetch dataset headers
-  const headers = await getFetchedHeaders(mode, uploadId);
-
-  // Prepare initial chart configuration
-  const initialConfig = chartData
-    ? {
-        chartType: chartData.chart_type,
-        xAxis: chartData.x_axis,
-        yAxis: chartData.y_axis,
-        aggFunc: chartData.agg_func,
-        yearFrom: chartData.year_from,
-        yearTo: chartData.year_to,
+        if (chartId) {
+          const chartData = await fetchChartById(chartId);
+          setInitialConfig({
+            chartType: chartData.chart_type,
+            xAxis: chartData.x_axis,
+            yAxis: chartData.y_axis,
+            aggFunc: chartData.agg_func,
+            yearFrom: chartData.year_from,
+            yearTo: chartData.year_to,
+          });
+        }
+      } catch (err) {
+        console.error("Error loading build page:", err);
+      } finally {
+        setLoading(false);
       }
-    : undefined;
+    };
+
+    loadData();
+  }, [mode, uploadId, chartId, refreshCharts]);
 
   return (
     <div className="mt-20 mb-20 max-w-7xl mx-auto space-y-8">
@@ -47,13 +55,19 @@ export default async function Build({ searchParams }: BuildPageProps) {
         </div>
       </div>
 
-      {headers.length > 0 && (
+      {loading ? (
+        <p className="text-center text-gray-500">Loading data...</p>
+      ) : headers.length > 0 ? (
         <ChartControls
           headers={headers}
           uploadId={uploadId}
           mode={mode}
-          initialConfig={initialConfig}
+          initialConfig={initialConfig || undefined}
         />
+      ) : (
+        <p className="text-center text-gray-400">
+          No headers found. Please upload a dataset first.
+        </p>
       )}
     </div>
   );
