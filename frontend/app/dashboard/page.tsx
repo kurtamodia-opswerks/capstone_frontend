@@ -48,6 +48,9 @@ export default async function Dashboard({ searchParams }: PageProps) {
             charts={dashboard.charts || []}
             mode={mode}
             uploadId={uploadId}
+            dashboardId={dashboard._id}
+            initialYearFrom={dashboard.year_from}
+            initialYearTo={dashboard.year_to}
           />
         </div>
       </div>

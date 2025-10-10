@@ -2,26 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { fetchAggregatedData } from "@/lib/api/chart";
+import { updateDashboardDateRange } from "@/lib/api/dashboard";
 import ChartPreview from "@/components/charts/ChartPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Grid3X3, List, BarChart3, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Grid3X3, List, BarChart3, Plus, Calendar, Save } from "lucide-react";
+import { Label } from "@radix-ui/react-label";
+import { toast } from "sonner";
 
 interface DashboardChartsProps {
   charts: any[];
   mode: "aggregated" | "dataset";
   uploadId: string | null;
+  dashboardId: string;
+  initialYearFrom?: number | null;
+  initialYearTo?: number | null;
 }
 
 export default function DashboardCharts({
   charts,
   mode,
   uploadId,
+  dashboardId,
+  initialYearFrom,
+  initialYearTo,
 }: DashboardChartsProps) {
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
+  const [globalYearFrom, setGlobalYearFrom] = useState<string | null>(
+    initialYearFrom?.toString() || ""
+  );
+  const [globalYearTo, setGlobalYearTo] = useState<string | null>(
+    initialYearTo?.toString() || ""
+  );
+
+  const [debouncedYearFrom, setDebouncedYearFrom] = useState(globalYearFrom);
+  const [debouncedYearTo, setDebouncedYearTo] = useState(globalYearTo);
+  const [saving, setSaving] = useState(false); // 🆕 saving state
+
+  // 🕒 Debounce typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedYearFrom(globalYearFrom);
+      setDebouncedYearTo(globalYearTo);
+    }, 600);
+    return () => clearTimeout(handler);
+  }, [globalYearFrom, globalYearTo]);
+
+  // 🧠 Fetch chart data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -34,8 +65,8 @@ export default function DashboardCharts({
             chart.x_axis,
             chart.y_axis,
             chart.agg_func,
-            chart.year_from,
-            chart.year_to
+            debouncedYearFrom || chart.year_from,
+            debouncedYearTo || chart.year_to
           );
           results[chart._id] = data;
         } catch (err) {
@@ -48,16 +79,36 @@ export default function DashboardCharts({
       setLoading(false);
     };
 
-    if (charts.length > 0) {
-      fetchData();
-    } else {
-      setLoading(false);
-    }
-  }, [charts, uploadId]);
+    if (charts.length > 0) fetchData();
+    else setLoading(false);
+  }, [charts, uploadId, debouncedYearFrom, debouncedYearTo]);
 
-  if (loading) {
-    return <DashboardSkeleton />;
-  }
+  // 🆕 Manual save button handler
+  const handleSaveFilters = async () => {
+    try {
+      setSaving(true);
+      await updateDashboardDateRange(
+        dashboardId,
+        globalYearFrom ? Number(globalYearFrom) : null,
+        globalYearTo ? Number(globalYearTo) : null
+      );
+      toast.success("Dashboard filters saved");
+    } catch (err) {
+      toast.error("Failed to save filters");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🧱 Reset filters (and backend)
+  const handleReset = async () => {
+    setGlobalYearFrom("");
+    setGlobalYearTo("");
+    await updateDashboardDateRange(dashboardId, null, null);
+  };
+
+  if (loading) return <DashboardSkeleton />;
 
   if (!charts.length) {
     return (
@@ -82,7 +133,7 @@ export default function DashboardCharts({
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-semibold text-gray-900">
             {charts.length} {charts.length === 1 ? "Chart" : "Charts"}
@@ -107,32 +158,65 @@ export default function DashboardCharts({
             </Button>
           </div>
         </div>
+
+        {/* 🆕 Global Year Filter */}
+        <div className="flex items-center gap-3 bg-white border rounded-lg p-3 shadow-sm">
+          <Calendar className="w-4 h-4 text-blue-600" />
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">From Year</Label>
+            <Input
+              type="number"
+              placeholder="e.g. 2013"
+              value={globalYearFrom ?? ""}
+              onChange={(e) => setGlobalYearFrom(e.target.value || null)}
+              className="bg-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">To Year (optional)</Label>
+            <Input
+              type="number"
+              placeholder="e.g. 2023"
+              value={globalYearTo ?? ""}
+              onChange={(e) => setGlobalYearTo(e.target.value || null)}
+              className="bg-white"
+            />
+          </div>
+
+          {/* 🆕 Save / Reset buttons */}
+          <Button
+            size="sm"
+            variant="default"
+            className="gap-2"
+            onClick={handleSaveFilters}
+            disabled={saving}
+          >
+            <Save className="w-4 h-4" />
+            {saving ? "Saving..." : "Save Filters"}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={handleReset}>
+            Reset
+          </Button>
+        </div>
       </div>
 
       {/* Charts Grid */}
       <div
-        className={`
-        gap-6
-        ${
+        className={`gap-6 ${
           viewMode === "grid"
             ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
             : "space-y-6"
-        }
-      `}
+        }`}
       >
         {charts.map((chart, index) => (
           <div
             key={chart._id}
-            className={`
-              group relative
-              ${
-                viewMode === "grid"
-                  ? "bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-                  : "bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200"
-              }
-            `}
+            className={`group relative ${
+              viewMode === "grid"
+                ? "bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                : "bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200"
+            }`}
           >
-            {/* Chart Header */}
             <div className="p-4 border-b bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -151,7 +235,6 @@ export default function DashboardCharts({
               </div>
             </div>
 
-            {/* Chart Content */}
             <div className={viewMode === "grid" ? "p-4 aspect-video" : "p-6"}>
               {chartData[chart._id] ? (
                 <ChartPreview
@@ -162,8 +245,8 @@ export default function DashboardCharts({
                   yAxis={chart.y_axis}
                   uploadId={uploadId}
                   aggFunc={chart.agg_func}
-                  yearFrom={chart.year_from}
-                  yearTo={chart.year_to}
+                  yearFrom={globalYearFrom || chart.year_from}
+                  yearTo={globalYearTo || chart.year_to}
                   showPerformancePanel={false}
                 />
               ) : (
@@ -173,15 +256,16 @@ export default function DashboardCharts({
               )}
             </div>
 
-            {/* Chart Footer */}
             <div className="px-4 py-3 bg-gray-50 border-t">
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>X: {chart.x_axis}</span>
                 <span>Y: {chart.y_axis}</span>
-                {chart.year_from && (
+                {(globalYearFrom || chart.year_from) && (
                   <span>
-                    Range: {chart.year_from}
-                    {chart.year_to ? `-${chart.year_to}` : "+"}
+                    Range: {globalYearFrom || chart.year_from}
+                    {globalYearTo || chart.year_to
+                      ? `-${globalYearTo || chart.year_to}`
+                      : "+"}
                   </span>
                 )}
               </div>

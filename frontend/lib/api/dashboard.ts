@@ -57,3 +57,20 @@ export async function fetchDashboard(mode: string, uploadId: string | null) {
 
   return res.json();
 }
+
+export async function updateDashboardDateRange(
+  dashboardId: string,
+  yearFrom: number | null,
+  yearTo: number | null
+) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${dashboardId}/date-range`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year_from: yearFrom, year_to: yearTo }),
+    }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
