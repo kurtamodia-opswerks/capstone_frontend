@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { addToDashboard } from "@/lib/api/dashboard";
+import { useEffect, useState } from "react";
+import { addToDashboard, fetchDashboard } from "@/lib/api/dashboard";
 
 interface ChartsPageClientProps {
   mode: "aggregated" | "dataset";
@@ -27,6 +28,28 @@ export default function ChartsPageClient({
   savedCharts = [],
 }: ChartsPageClientProps) {
   const router = useRouter();
+  const [dashboardCharts, setDashboardCharts] = useState<string[]>([]);
+
+  // =======================================
+  // Fetch existing dashboard to check which charts are already added
+  // =======================================
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const res = await fetchDashboard(mode, uploadId);
+        if (res?.charts?.length) {
+          const chartIds = res.charts.map((c: any) => c._id);
+          setDashboardCharts(chartIds);
+        }
+      } catch (err) {
+        console.warn("No dashboard found or failed to fetch:", err);
+        setDashboardCharts([]);
+      }
+    };
+
+    loadDashboard();
+  }, [mode, uploadId]);
+
   // =======================================
   // Create new chart button
   // =======================================
@@ -66,6 +89,7 @@ export default function ChartsPageClient({
 
     try {
       const response = await addToDashboard(payload);
+      setDashboardCharts((prev) => [...prev, chart_id]); // ✅ Update local state
     } catch (err) {
       console.error("Failed to update dashboard:", err);
     }
@@ -89,7 +113,6 @@ export default function ChartsPageClient({
       {fetchedHeaders.length > 0 && (
         <Card>
           <CardHeader className="pb-3 flex items-center justify-between">
-            {/* Left side: dataset info */}
             <div>
               <CardTitle className="text-base">
                 <div>
@@ -107,11 +130,10 @@ export default function ChartsPageClient({
               </CardDescription>
             </div>
 
-            {/* Right side: Go to Dashboard button */}
             <Button
               variant="outline"
               className="text-sm"
-              onClick={() => handleViewDashboard()}
+              onClick={handleViewDashboard}
             >
               Go to Dashboard
             </Button>
@@ -164,30 +186,42 @@ export default function ChartsPageClient({
         <CardContent>
           {savedCharts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {savedCharts.map((chart) => (
-                <Card key={chart._id} className="border-gray-200">
-                  <CardContent className="p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">
-                      {chart.name}
-                    </h4>
-                    <p className="text-sm text-blue-700">{chart.chart_type}</p>
-                    <div className="flex gap-2 mt-3">
-                      <Button
-                        onClick={() => handleLoadChart(chart)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        Load
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleAddToDashboard(chart._id)}
-                      >
-                        Add to Dashboard
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {savedCharts.map((chart) => {
+                const isInDashboard = dashboardCharts.includes(chart._id);
+                return (
+                  <Card key={chart._id} className="border-gray-200">
+                    <CardContent className="p-4">
+                      <h4 className="font-medium text-blue-900 mb-2">
+                        {chart.name}
+                      </h4>
+                      <p className="text-sm text-blue-700">
+                        {chart.chart_type}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          onClick={() => handleLoadChart(chart)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Load
+                        </Button>
+
+                        {isInDashboard ? (
+                          <Button variant="secondary" disabled>
+                            In Dashboard
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleAddToDashboard(chart._id)}
+                          >
+                            Add to Dashboard
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
