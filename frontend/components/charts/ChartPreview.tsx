@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useSaveChart } from "@/hooks/useSaveChart";
 import { useRenderTimer } from "@/hooks/useRenderTimer";
 import { updateChart } from "@/lib/api/chart";
+import { useChartsStore } from "@/store/dataStore";
 
 export default function ChartPreview({
   mode,
@@ -43,6 +44,7 @@ export default function ChartPreview({
   yearTo?: string | null;
   showPerformancePanel?: boolean;
 }) {
+  const { refreshCharts } = useChartsStore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const chartId = searchParams.get("chartId");
@@ -91,8 +93,8 @@ export default function ChartPreview({
 
       setOpenDialog(false);
       setChartName("");
+      await refreshCharts(mode, uploadId ?? null);
       router.back();
-      router.refresh();
     } catch (error) {
       toast.error("Failed to save chart");
       console.error(error);
