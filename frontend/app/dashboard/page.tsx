@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Warehouse, Plus, ChartSpline } from "lucide-react";
+import { FileText, Plus, ChartSpline } from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -88,7 +88,7 @@ export default function Dashboard() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/" className="flex flex-row gap-1">
-                  <Warehouse className="mr-2 h-8 w-8" />
+                  <FileText className="mr-2 h-8 w-8" />
                   <span>Use a new dataset</span>
                 </Link>
               </NavigationMenuLink>

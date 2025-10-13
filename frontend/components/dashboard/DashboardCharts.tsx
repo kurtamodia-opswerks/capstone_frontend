@@ -181,22 +181,36 @@ export default function DashboardCharts({
           </h2>
           <div className="h-4 w-px bg-gray-300" />
           <div className="flex items-center gap-1 bg-white rounded-lg border p-1">
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="h-8 px-3"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="h-8 px-3"
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="h-8 px-3"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>List View</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="h-8 px-3"
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Grid View</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
