@@ -38,6 +38,8 @@ interface DashboardChartsProps {
   initialYearFrom?: number | null;
   initialYearTo?: number | null;
   handleImportChart: (e: React.MouseEvent) => void;
+  showRecharts: boolean;
+  showChartJs: boolean;
 }
 
 export default function DashboardCharts({
@@ -48,6 +50,8 @@ export default function DashboardCharts({
   initialYearFrom,
   initialYearTo,
   handleImportChart,
+  showRecharts,
+  showChartJs,
 }: DashboardChartsProps) {
   const router = useRouter();
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
@@ -338,8 +342,8 @@ export default function DashboardCharts({
                   yearFrom={globalYearFrom || chart.year_from}
                   yearTo={globalYearTo || chart.year_to}
                   showPerformancePanel={false}
-                  showChartJs={true}
-                  showRecharts={false}
+                  showChartJs={showChartJs}
+                  showRecharts={showRecharts}
                 />
               ) : (
                 <div className="flex items-center justify-center h-32 text-gray-400">

@@ -22,6 +22,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -30,7 +32,8 @@ export default function Dashboard() {
     searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
   const uploadId = searchParams.get("uploadId");
   const [loading, setLoading] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showChartsJs, setShowChartsJs] = useState(true);
+  const [showRecharts, setShowRecharts] = useState(true);
 
   const { dashboard, refreshDashboard } = useDataStore();
 
@@ -138,8 +141,34 @@ export default function Dashboard() {
               <Settings className="mr-2 h-4 w-4" />
               Dashboard Settings
             </PopoverTrigger>
-            <PopoverContent className="text-sm">
-              Put settings here
+
+            <PopoverContent className="text-sm w-56 space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="showRecharts"
+                  checked={showRecharts}
+                  onCheckedChange={(checked) => setShowRecharts(!!checked)}
+                />
+                <Label
+                  htmlFor="showRecharts"
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  Show Recharts
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="showChartsJS"
+                  checked={showChartsJs}
+                  onCheckedChange={(checked) => setShowChartsJs(!!checked)}
+                />
+                <Label
+                  htmlFor="showChartsJS"
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  Show Charts.js
+                </Label>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
@@ -182,6 +211,8 @@ export default function Dashboard() {
             initialYearFrom={dashboard.year_from}
             initialYearTo={dashboard.year_to}
             handleImportChart={handleImportChart}
+            showRecharts={showRecharts}
+            showChartJs={showChartsJs}
           />
         )}
       </div>
