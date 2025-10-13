@@ -17,7 +17,7 @@ import {
   Plus,
   Calendar,
   Save,
-  MonitorUp,
+  RefreshCcw,
   Trash,
 } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
@@ -295,7 +295,7 @@ export default function DashboardCharts({
                         variant="load"
                         onClick={() => handleLoadChart(chart)}
                       >
-                        <MonitorUp />
+                        <RefreshCcw />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -338,6 +338,8 @@ export default function DashboardCharts({
                   yearFrom={globalYearFrom || chart.year_from}
                   yearTo={globalYearTo || chart.year_to}
                   showPerformancePanel={false}
+                  showChartJs={true}
+                  showRecharts={false}
                 />
               ) : (
                 <div className="flex items-center justify-center h-32 text-gray-400">

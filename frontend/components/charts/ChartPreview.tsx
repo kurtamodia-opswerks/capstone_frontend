@@ -32,6 +32,8 @@ export default function ChartPreview({
   yearFrom,
   yearTo,
   showPerformancePanel = true,
+  showChartJs = true,
+  showRecharts = true,
 }: {
   mode: "aggregated" | "dataset";
   chartType: "bar" | "line" | "pie";
@@ -43,6 +45,8 @@ export default function ChartPreview({
   yearFrom?: string | null;
   yearTo?: string | null;
   showPerformancePanel?: boolean;
+  showChartJs?: boolean;
+  showRecharts?: boolean;
 }) {
   const { refreshCharts } = useDataStore();
   const router = useRouter();
@@ -106,50 +110,54 @@ export default function ChartPreview({
   return (
     <div className="space-y-8">
       {/* ===================== RECHARTS ===================== */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-800 mb-2">
-          Recharts{" "}
-          <span className="text-xs text-gray-500">
-            (Render Time:{" "}
-            {rechartsTimer.renderTime
-              ? `${rechartsTimer.renderTime.toFixed(1)} ms`
-              : "–"}
-            )
-          </span>
-        </h4>
+      {showRecharts && (
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800 mb-2">
+            Recharts{" "}
+            <span className="text-xs text-gray-500">
+              (Render Time:{" "}
+              {rechartsTimer.renderTime
+                ? `${rechartsTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              )
+            </span>
+          </h4>
 
-        <RechartsRenderer
-          chartType={chartType}
-          data={data}
-          xAxis={xAxis}
-          yAxis={yAxis}
-          onRenderStart={rechartsTimer.onRenderStart}
-          onRenderEnd={rechartsTimer.onRenderEnd}
-        />
-      </div>
+          <RechartsRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={rechartsTimer.onRenderStart}
+            onRenderEnd={rechartsTimer.onRenderEnd}
+          />
+        </div>
+      )}
 
       {/* ===================== CHART.JS ===================== */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-800 mb-2">
-          Chart.js{" "}
-          <span className="text-xs text-gray-500">
-            (Render Time:{" "}
-            {chartjsTimer.renderTime
-              ? `${chartjsTimer.renderTime.toFixed(1)} ms`
-              : "–"}
-            )
-          </span>
-        </h4>
+      {showChartJs && (
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800 mb-2">
+            Chart.js{" "}
+            <span className="text-xs text-gray-500">
+              (Render Time:{" "}
+              {chartjsTimer.renderTime
+                ? `${chartjsTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              )
+            </span>
+          </h4>
 
-        <ChartJSRenderer
-          chartType={chartType}
-          data={data}
-          xAxis={xAxis}
-          yAxis={yAxis}
-          onRenderStart={chartjsTimer.onRenderStart}
-          onRenderEnd={chartjsTimer.onRenderEnd}
-        />
-      </div>
+          <ChartJSRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={chartjsTimer.onRenderStart}
+            onRenderEnd={chartjsTimer.onRenderEnd}
+          />
+        </div>
+      )}
 
       {/* ===================== PERFORMANCE PANEL ===================== */}
       {showPerformancePanel && (

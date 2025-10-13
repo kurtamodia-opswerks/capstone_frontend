@@ -2,7 +2,7 @@
 
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Settings } from "lucide-react";
 import { useDataStore } from "@/store/dataStore";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, Plus, ChartSpline } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Dashboard() {
     searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
   const uploadId = searchParams.get("uploadId");
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
 
   const { dashboard, refreshDashboard } = useDataStore();
 
@@ -79,11 +81,16 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 grid grid-cols-7 gap-4">
-      <div className="col-span-1 p-6 sticky top-0">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Navigation
-        </h2>
-        <NavigationMenu className="mt-6">
+      <div className="col-span-1 p-6 sticky top-0 bg-gray-100">
+        <div className="flex items-center justify-start gap-3">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <BarChart3 className="h-4 w-4 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Optics Chart
+          </h1>
+        </div>
+        <NavigationMenu className="mt-6 ml-6">
           <NavigationMenuList className="flex flex-col space-y-2">
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
@@ -115,6 +122,18 @@ export default function Dashboard() {
                   <Plus className="mr-2 h-4 w-4" />
                   Create a new chart
                 </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowSettings(true)}
+                  className="flex flex-row gap-1"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Dashboard Settings
+                </Button>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
