@@ -16,6 +16,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, Plus, ChartSpline } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -90,54 +96,53 @@ export default function Dashboard() {
             Optics Chart
           </h1>
         </div>
-        <NavigationMenu className="mt-6 ml-6">
-          <NavigationMenuList className="flex flex-col space-y-2">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/" className="flex flex-row gap-1">
-                  <FileText className="mr-2 h-8 w-8" />
-                  <span>Use a new dataset</span>
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/"
-                  onClick={handleImportChart}
-                  className="flex flex-row gap-1"
-                >
-                  <ChartSpline className="mr-2 h-4 w-4" />
-                  Import a new chart
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/"
-                  onClick={handleCreateChart}
-                  className="flex flex-row gap-1"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create a new chart
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowSettings(true)}
-                  className="flex flex-row gap-1"
-                >
-                  <Settings className="mr-2 h-4 w-4" />
-                  Dashboard Settings
-                </Button>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex flex-col justify-between gap-20">
+          <NavigationMenu className="mt-6 ml-6">
+            <NavigationMenuList className="flex flex-col space-y-2 items-start">
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/" className="flex flex-row gap-1">
+                    <FileText className="mr-2 h-8 w-8" />
+                    <span>Use a new dataset</span>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/"
+                    onClick={handleImportChart}
+                    className="flex flex-row gap-1"
+                  >
+                    <ChartSpline className="mr-2 h-4 w-4" />
+                    Import a new chart
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/"
+                    onClick={handleCreateChart}
+                    className="flex flex-row gap-1"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create a new chart
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <Popover>
+            <PopoverTrigger className="text-sm flex flex-row justify-start items-center hover:cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground rounded-md ml-6 px-2 py-2">
+              <Settings className="mr-2 h-4 w-4" />
+              Dashboard Settings
+            </PopoverTrigger>
+            <PopoverContent className="text-sm">
+              Put settings here
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       <div className="w-full mx-auto p-6 col-span-6">
         {/* Header */}
