@@ -94,7 +94,9 @@ export default function ChartPreview({
       setOpenDialog(false);
       setChartName("");
       await refreshCharts(mode, uploadId ?? null);
-      router.back();
+      const params = new URLSearchParams({ mode });
+      if (uploadId) params.set("uploadId", uploadId);
+      router.push(`/charts?${params.toString()}`);
     } catch (error) {
       toast.error("Failed to save chart");
       console.error(error);
@@ -158,13 +160,13 @@ export default function ChartPreview({
             </h4>
             <ul className="text-sm space-y-1 text-gray-700">
               <li>
-                <span className="font-medium text-blue-600">Recharts:</span>{" "}
+                <span className="font-bold text-blue-600">Recharts:</span>{" "}
                 {rechartsTimer.renderTime
                   ? `${rechartsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
               </li>
               <li>
-                <span className="font-medium text-green-600">Chart.js:</span>{" "}
+                <span className="font-bold text-green-600">Chart.js:</span>{" "}
                 {chartjsTimer.renderTime
                   ? `${chartjsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
@@ -174,11 +176,11 @@ export default function ChartPreview({
                   <span className="font-medium">Faster Library:</span>{" "}
                   {rechartsTimer.renderTime < chartjsTimer.renderTime ? (
                     <span className="text-blue-600 font-semibold">
-                      Recharts 🚀
+                      Recharts
                     </span>
                   ) : (
                     <span className="text-green-600 font-semibold">
-                      Chart.js ⚡
+                      Chart.js
                     </span>
                   )}
                 </li>

@@ -119,7 +119,7 @@ export default function ChartsPageClient() {
                     Dataset Structure
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Upload ID: {uploadId ?? "N/A"}
+                    Upload ID: {uploadId ?? "Aggregated"}
                   </p>
                 </div>
               </CardTitle>

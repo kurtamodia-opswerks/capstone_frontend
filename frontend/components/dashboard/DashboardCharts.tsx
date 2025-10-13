@@ -1,15 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { fetchAggregatedData } from "@/lib/api/chart";
-import { updateDashboardDateRange } from "@/lib/api/dashboard";
+import {
+  removeChartFromDashboard,
+  updateDashboardDateRange,
+} from "@/lib/api/dashboard";
 import ChartPreview from "@/components/charts/ChartPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Grid3X3, List, BarChart3, Plus, Calendar, Save } from "lucide-react";
+import {
+  Grid3X3,
+  List,
+  BarChart3,
+  Plus,
+  Calendar,
+  Save,
+  MonitorUp,
+  Trash,
+} from "lucide-react";
 import { Label } from "@radix-ui/react-label";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useDataStore } from "@/store/dataStore";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DashboardChartsProps {
   charts: any[];
@@ -18,6 +37,7 @@ interface DashboardChartsProps {
   dashboardId: string;
   initialYearFrom?: number | null;
   initialYearTo?: number | null;
+  handleImportChart: (e: React.MouseEvent) => void;
 }
 
 export default function DashboardCharts({
@@ -27,7 +47,9 @@ export default function DashboardCharts({
   dashboardId,
   initialYearFrom,
   initialYearTo,
+  handleImportChart,
 }: DashboardChartsProps) {
+  const router = useRouter();
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
@@ -41,9 +63,11 @@ export default function DashboardCharts({
 
   const [debouncedYearFrom, setDebouncedYearFrom] = useState(globalYearFrom);
   const [debouncedYearTo, setDebouncedYearTo] = useState(globalYearTo);
-  const [saving, setSaving] = useState(false); // 🆕 saving state
+  const [saving, setSaving] = useState(false);
 
-  // 🕒 Debounce typing
+  const { refreshDashboard } = useDataStore();
+
+  // Debounce typing
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedYearFrom(globalYearFrom);
@@ -52,7 +76,7 @@ export default function DashboardCharts({
     return () => clearTimeout(handler);
   }, [globalYearFrom, globalYearTo]);
 
-  // 🧠 Fetch chart data
+  // Fetch chart data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -83,7 +107,7 @@ export default function DashboardCharts({
     else setLoading(false);
   }, [charts, uploadId, debouncedYearFrom, debouncedYearTo]);
 
-  // 🆕 Manual save button handler
+  // Manual save button handler
   const handleSaveFilters = async () => {
     try {
       setSaving(true);
@@ -101,7 +125,7 @@ export default function DashboardCharts({
     }
   };
 
-  // 🧱 Reset filters (and backend)
+  // Reset filters (and backend)
   const handleReset = async () => {
     setGlobalYearFrom("");
     setGlobalYearTo("");
@@ -120,16 +144,33 @@ export default function DashboardCharts({
           No Charts Yet
         </h3>
         <p className="text-gray-500 mb-6 max-w-md mx-auto">
-          Create your first visualization to see it appear in your dashboard.
+          Import your first visualization to see it appear in your dashboard.
         </p>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={handleImportChart}>
           <Plus className="h-4 w-4" />
-          Create First Chart
+          Import First Chart
         </Button>
       </div>
     );
   }
 
+  // Handle load chart
+  const handleLoadChart = (chart: any) => {
+    const params = new URLSearchParams({
+      mode,
+      chartId: chart._id,
+    });
+    if (uploadId) params.set("uploadId", uploadId);
+    router.push(`/build?${params.toString()}`);
+  };
+
+  const handleRemoveChartFromDashboard = async (
+    dashboardId: string,
+    chartId: string
+  ) => {
+    await removeChartFromDashboard(dashboardId, chartId);
+    await refreshDashboard(mode, uploadId);
+  };
   return (
     <div className="space-y-6">
       {/* Header Controls */}
@@ -159,7 +200,7 @@ export default function DashboardCharts({
           </div>
         </div>
 
-        {/* 🆕 Global Year Filter */}
+        {/* Global Year Filter */}
         <div className="flex items-center gap-3 bg-white border rounded-lg p-3 shadow-sm">
           <Calendar className="w-4 h-4 text-blue-600" />
           <div className="space-y-2">
@@ -183,7 +224,7 @@ export default function DashboardCharts({
             />
           </div>
 
-          {/* 🆕 Save / Reset buttons */}
+          {/* Save / Reset buttons */}
           <Button
             size="sm"
             variant="default"
@@ -231,6 +272,41 @@ export default function DashboardCharts({
                       {chart.chart_type} • {chart.agg_func || "No aggregation"}
                     </p>
                   </div>
+                </div>
+                <div className="flex flex-row gap-3">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button
+                        size="sm"
+                        variant="load"
+                        onClick={() => handleLoadChart(chart)}
+                      >
+                        <MonitorUp />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Load chart</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          handleRemoveChartFromDashboard(
+                            dashboardId,
+                            chart._id
+                          );
+                        }}
+                      >
+                        <Trash />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Remove from dashboard</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>

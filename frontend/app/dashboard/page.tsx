@@ -6,8 +6,18 @@ import { BarChart3 } from "lucide-react";
 import { useDataStore } from "@/store/dataStore";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Warehouse, Plus, ChartSpline } from "lucide-react";
 
 export default function Dashboard() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const mode =
     searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
@@ -16,7 +26,7 @@ export default function Dashboard() {
 
   const { dashboard, refreshDashboard } = useDataStore();
 
-  // ✅ Only refresh when mode or uploadId changes
+  // Only refresh when mode or uploadId changes
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -32,7 +42,21 @@ export default function Dashboard() {
     loadData();
   }, [mode, uploadId, refreshDashboard]);
 
-  // ✅ Handle missing or invalid dashboard gracefully
+  const handleCreateChart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams({ mode });
+    if (uploadId) params.set("uploadId", uploadId);
+    router.push(`/build?${params.toString()}`);
+  };
+
+  const handleImportChart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams({ mode });
+    if (uploadId) params.set("uploadId", uploadId);
+    router.push(`/charts?${params.toString()}`);
+  };
+
+  // Handle missing or invalid dashboard gracefully
   if (!dashboard || !dashboard._id) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
@@ -54,8 +78,49 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 grid grid-cols-7 gap-4">
+      <div className="col-span-1 p-6 sticky top-0">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Navigation
+        </h2>
+        <NavigationMenu className="mt-6">
+          <NavigationMenuList className="flex flex-col space-y-2">
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/" className="flex flex-row gap-1">
+                  <Warehouse className="mr-2 h-8 w-8" />
+                  <span>Use a new dataset</span>
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link
+                  href="/"
+                  onClick={handleImportChart}
+                  className="flex flex-row gap-1"
+                >
+                  <ChartSpline className="mr-2 h-4 w-4" />
+                  Import a new chart
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link
+                  href="/"
+                  onClick={handleCreateChart}
+                  className="flex flex-row gap-1"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create a new chart
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+      <div className="w-full mx-auto p-6 col-span-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -92,6 +157,7 @@ export default function Dashboard() {
             dashboardId={dashboard._id}
             initialYearFrom={dashboard.year_from}
             initialYearTo={dashboard.year_to}
+            handleImportChart={handleImportChart}
           />
         )}
       </div>
