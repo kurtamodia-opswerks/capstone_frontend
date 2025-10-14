@@ -1,3 +1,4 @@
+// fetch aggregated data for chart
 export async function fetchAggregatedData(
   uploadId: string | null,
   xAxis: string,
@@ -26,6 +27,7 @@ export async function fetchAggregatedData(
   return res.json();
 }
 
+// save chart
 export async function postSaveChart(
   mode: "aggregated" | "dataset",
   uploadId: string | null,
@@ -57,6 +59,7 @@ export async function postSaveChart(
   return res.json();
 }
 
+// fetch saved charts
 export async function fetchSavedCharts(mode: string, uploadId: string | null) {
   if (mode === "aggregated") {
     try {
@@ -89,9 +92,7 @@ export async function fetchChartById(chartId: string) {
   return res.json();
 }
 
-// ============================================
-// 🆕 Update Chart (PUT /chart/update/{chart_id})
-// ============================================
+// Update a chart
 export async function updateChart(
   chartId: string,
   updatedData: {
@@ -128,5 +129,17 @@ export async function updateChart(
   );
 
   if (!res.ok) throw new Error("Failed to update chart");
+  return res.json();
+}
+
+export async function deleteChart(chartId: string) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/chart/delete/${chartId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!res.ok) throw new Error("Failed to delete chart");
   return res.json();
 }

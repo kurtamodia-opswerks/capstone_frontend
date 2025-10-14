@@ -8,12 +8,29 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Database } from "lucide-react";
+import { BarChart3, Database, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { addToDashboard, fetchDashboard } from "@/lib/api/dashboard";
 import { useDataStore } from "@/store/dataStore";
+import { deleteChart } from "@/lib/api/chart";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function ChartsPageClient() {
   const searchParams = useSearchParams();
@@ -27,16 +44,12 @@ export default function ChartsPageClient() {
   const { headers, savedCharts, refreshCharts } = useDataStore();
   const [dashboardCharts, setDashboardCharts] = useState<string[]>([]);
 
-  // ===============================
-  // Fetch charts + dataset headers
-  // ===============================
+  // Fetch charts
   useEffect(() => {
     refreshCharts(mode, uploadId ?? null);
   }, [mode, uploadId]);
 
-  // ===============================
-  // Fetch dashboard state
-  // ===============================
+  // Fetch dashboard
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -54,9 +67,7 @@ export default function ChartsPageClient() {
     loadDashboard();
   }, [mode, uploadId]);
 
-  // ===============================
-  // Navigation Handlers
-  // ===============================
+  // Navigation handlers and chart actions
   const handleCreateChart = () => {
     const params = new URLSearchParams({ mode });
     if (uploadId) params.set("uploadId", uploadId);
@@ -78,9 +89,18 @@ export default function ChartsPageClient() {
     router.push(`/dashboard?${params.toString()}`);
   };
 
-  // ===============================
-  // Add Chart to Dashboard
-  // ===============================
+  const handleDeleteChart = async (chart_id: string) => {
+    try {
+      await deleteChart(chart_id);
+      await refreshCharts(mode, uploadId ?? null);
+      toast.success("Chart deleted successfully");
+    } catch (err) {
+      console.error("Failed to delete chart:", err);
+      toast.error("Failed to delete chart");
+    }
+  };
+
+  // Dashboard handlers
   const handleAddToDashboard = async (chart_id: string) => {
     try {
       await addToDashboard({ mode, upload_id: uploadId, chart_id });
@@ -90,9 +110,6 @@ export default function ChartsPageClient() {
     }
   };
 
-  // ===============================
-  // Render
-  // ===============================
   return (
     <div className="mt-20 mb-20 max-w-7xl mx-auto space-y-8">
       {/* Header */}
@@ -189,9 +206,50 @@ export default function ChartsPageClient() {
                 return (
                   <Card key={chart._id} className="border-gray-200">
                     <CardContent className="p-4">
-                      <h4 className="font-medium text-blue-900 mb-2">
-                        {chart.name}
-                      </h4>
+                      <div className="flex flex-row items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-blue-900 mb-2">
+                            {chart.name}
+                          </h4>
+                        </div>
+
+                        <Dialog>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DialogTrigger asChild>
+                                <Button size="sm" variant="destructive">
+                                  <Trash />
+                                </Button>
+                              </DialogTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Remove from dashboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delete chart</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to delete this chart from
+                                the database?
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter className="sm:justify-end">
+                              <DialogClose asChild>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  onClick={() => {
+                                    handleDeleteChart(chart._id);
+                                  }}
+                                >
+                                  Confirm
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                       <p className="text-sm text-blue-700">
                         {chart.chart_type}
                       </p>
