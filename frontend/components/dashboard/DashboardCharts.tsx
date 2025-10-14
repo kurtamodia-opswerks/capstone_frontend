@@ -50,6 +50,7 @@ interface DashboardChartsProps {
   handleImportChart: (e: React.MouseEvent) => void;
   showRecharts: boolean;
   showChartJs: boolean;
+  showPlotly: boolean;
 }
 
 export default function DashboardCharts({
@@ -62,6 +63,7 @@ export default function DashboardCharts({
   handleImportChart,
   showRecharts,
   showChartJs,
+  showPlotly,
 }: DashboardChartsProps) {
   const router = useRouter();
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
@@ -374,6 +376,7 @@ export default function DashboardCharts({
                   showPerformancePanel={false}
                   showChartJs={showChartJs}
                   showRecharts={showRecharts}
+                  showPlotly={showPlotly}
                 />
               ) : (
                 <div className="flex items-center justify-center h-32 text-gray-400">

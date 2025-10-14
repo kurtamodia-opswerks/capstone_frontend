@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
+import PlotlyRenderer from "./PlotlyRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ export default function ChartPreview({
   showPerformancePanel = true,
   showChartJs = true,
   showRecharts = true,
+  showPlotly = true,
 }: {
   mode: "aggregated" | "dataset";
   chartType: "bar" | "line" | "pie";
@@ -47,6 +49,7 @@ export default function ChartPreview({
   showPerformancePanel?: boolean;
   showChartJs?: boolean;
   showRecharts?: boolean;
+  showPlotly?: boolean;
 }) {
   const { refreshCharts } = useDataStore();
   const router = useRouter();
@@ -59,6 +62,7 @@ export default function ChartPreview({
 
   const rechartsTimer = useRenderTimer();
   const chartjsTimer = useRenderTimer();
+  const plotlyTimer = useRenderTimer();
 
   const handleSaveChart = async () => {
     if (!xAxis || !yAxis) {
@@ -159,6 +163,31 @@ export default function ChartPreview({
         </div>
       )}
 
+      {/* ===================== PLOTLY ===================== */}
+      {showPlotly && (
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800 mb-2">
+            Plotly{" "}
+            <span className="text-xs text-gray-500">
+              (Render Time:{" "}
+              {plotlyTimer.renderTime
+                ? `${plotlyTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              )
+            </span>
+          </h4>
+
+          <PlotlyRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={plotlyTimer.onRenderStart}
+            onRenderEnd={plotlyTimer.onRenderEnd}
+          />
+        </div>
+      )}
+
       {/* ===================== PERFORMANCE PANEL ===================== */}
       {showPerformancePanel && (
         <Card className="bg-gray-50 border-gray-200">
@@ -173,26 +202,55 @@ export default function ChartPreview({
                   ? `${rechartsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
               </li>
+
               <li>
                 <span className="font-bold text-green-600">Chart.js:</span>{" "}
                 {chartjsTimer.renderTime
                   ? `${chartjsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
               </li>
-              {rechartsTimer.renderTime && chartjsTimer.renderTime && (
-                <li className="pt-2 text-gray-800">
-                  <span className="font-medium">Faster Library:</span>{" "}
-                  {rechartsTimer.renderTime < chartjsTimer.renderTime ? (
-                    <span className="text-blue-600 font-semibold">
-                      Recharts
-                    </span>
-                  ) : (
-                    <span className="text-green-600 font-semibold">
-                      Chart.js
-                    </span>
-                  )}
-                </li>
-              )}
+
+              <li>
+                <span className="font-bold text-purple-600">Plotly:</span>{" "}
+                {plotlyTimer.renderTime
+                  ? `${plotlyTimer.renderTime.toFixed(2)} ms`
+                  : "–"}
+              </li>
+
+              {rechartsTimer.renderTime &&
+                chartjsTimer.renderTime &&
+                plotlyTimer.renderTime && (
+                  <li className="pt-2 text-gray-800">
+                    <span className="font-medium">Faster Library:</span>{" "}
+                    {(() => {
+                      const times = [
+                        {
+                          name: "Recharts",
+                          time: rechartsTimer.renderTime,
+                          color: "text-blue-600",
+                        },
+                        {
+                          name: "Chart.js",
+                          time: chartjsTimer.renderTime,
+                          color: "text-green-600",
+                        },
+                        {
+                          name: "Plotly",
+                          time: plotlyTimer.renderTime,
+                          color: "text-purple-600",
+                        },
+                      ];
+                      const fastest = times.reduce((a, b) =>
+                        a.time < b.time ? a : b
+                      );
+                      return (
+                        <span className={`${fastest.color} font-semibold`}>
+                          {fastest.name}
+                        </span>
+                      );
+                    })()}
+                  </li>
+                )}
             </ul>
 
             {/* Save Chart */}

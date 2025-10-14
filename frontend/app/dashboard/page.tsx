@@ -39,8 +39,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [choiceShowChartJs, setChoiceShowChartJs] = useState(true);
   const [choiceShowRecharts, setChoiceShowRecharts] = useState(true);
+  const [choiceShowPlotly, setChoiceShowPlotly] = useState(true);
   const [showChartsJs, setShowChartsJs] = useState(true);
   const [showRecharts, setShowRecharts] = useState(true);
+  const [showPlotly, setShowPlotly] = useState(true);
 
   const { dashboard, refreshDashboard } = useDataStore();
 
@@ -200,6 +202,22 @@ export default function Dashboard() {
                     Show Charts.js
                   </Label>
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showPlotly"
+                    checked={choiceShowPlotly}
+                    onCheckedChange={(checked) =>
+                      setChoiceShowPlotly(!!checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="showPlotly"
+                    className="text-sm font-medium leading-none cursor-pointer"
+                  >
+                    Show Plotly
+                  </Label>
+                </div>
               </div>
 
               <DialogFooter>
@@ -209,6 +227,7 @@ export default function Dashboard() {
                     onClick={() => {
                       setShowRecharts(choiceShowRecharts);
                       setShowChartsJs(choiceShowChartJs);
+                      setShowPlotly(choiceShowPlotly);
                     }}
                   >
                     Save Changes
@@ -261,6 +280,7 @@ export default function Dashboard() {
             handleImportChart={handleImportChart}
             showRecharts={showRecharts}
             showChartJs={showChartsJs}
+            showPlotly={showPlotly}
           />
         )}
       </div>
