@@ -46,14 +46,13 @@ export default function ChartJSRenderer({
   onRenderStart,
   onRenderEnd,
 }: ChartJSRendererProps) {
-  // Lifecycle for render timing (same pattern as PlotlyRenderer)
   useEffect(() => {
     onRenderStart?.();
     const timeout = setTimeout(() => onRenderEnd?.(), 0);
     return () => clearTimeout(timeout);
   }, [data, chartType]);
 
-  // Handle missing or invalid data gracefully
+  // Handle missing or invalid data
   if (!data || data.length === 0 || !xAxis || !yAxis) {
     return <p className="text-gray-400 text-center">No data to visualize</p>;
   }
@@ -62,7 +61,6 @@ export default function ChartJSRenderer({
   const labels = data.map((d) => d[xAxis]);
   const values = data.map((d) => d[yAxis]);
 
-  // Shared chart.js dataset colors
   const colors = [
     "#4f46e5",
     "#16a34a",
@@ -73,7 +71,6 @@ export default function ChartJSRenderer({
     "#ec4899",
   ];
 
-  // Build data object dynamically
   const chartData =
     chartType === "pie"
       ? {
@@ -101,7 +98,6 @@ export default function ChartJSRenderer({
           ],
         };
 
-  // Shared chart options
   const options: ChartOptions<any> = {
     responsive: true,
     maintainAspectRatio: false,

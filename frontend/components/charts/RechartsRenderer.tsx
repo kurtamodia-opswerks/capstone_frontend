@@ -54,7 +54,6 @@ export default function RechartsRenderer({
     "#ec4899",
   ];
 
-  // ✅ Select chart as a single JSX element
   const renderChart =
     chartType === "bar" ? (
       <BarChart
@@ -111,7 +110,6 @@ export default function RechartsRenderer({
       </PieChart>
     );
 
-  // ✅ Now ResponsiveContainer has exactly ONE child element
   return (
     <div className="w-full h-[400px] flex items-center justify-center">
       <ResponsiveContainer width="95%" height="100%">
