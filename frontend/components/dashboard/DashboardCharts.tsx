@@ -196,7 +196,7 @@ export default function DashboardCharts({
           <div className="h-4 w-px bg-gray-300" />
           <div className="flex items-center gap-1 bg-white rounded-lg border p-1">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
@@ -211,7 +211,7 @@ export default function DashboardCharts({
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
@@ -303,7 +303,7 @@ export default function DashboardCharts({
                 </div>
                 <div className="flex flex-row gap-3">
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Button
                         size="sm"
                         variant="load"
