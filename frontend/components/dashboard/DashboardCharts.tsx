@@ -29,6 +29,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface DashboardChartsProps {
   charts: any[];
@@ -306,25 +316,45 @@ export default function DashboardCharts({
                       <p>Load chart</p>
                     </TooltipContent>
                   </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => {
-                          handleRemoveChartFromDashboard(
-                            dashboardId,
-                            chart._id
-                          );
-                        }}
-                      >
-                        <Trash />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Remove from dashboard</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <Dialog>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="destructive">
+                            <Trash />
+                          </Button>
+                        </DialogTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Remove from dashboard</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Remove chart</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to remove this chart from your
+                          dashboard?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="sm:justify-end">
+                        <DialogClose asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => {
+                              handleRemoveChartFromDashboard(
+                                dashboardId,
+                                chart._id
+                              );
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </div>
