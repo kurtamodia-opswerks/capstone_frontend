@@ -15,13 +15,20 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, Plus, ChartSpline } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -30,6 +37,8 @@ export default function Dashboard() {
     searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
   const uploadId = searchParams.get("uploadId");
   const [loading, setLoading] = useState(true);
+  const [choiceShowChartJs, setChoiceShowChartJs] = useState(true);
+  const [choiceShowRecharts, setChoiceShowRecharts] = useState(true);
   const [showChartsJs, setShowChartsJs] = useState(true);
   const [showRecharts, setShowRecharts] = useState(true);
 
@@ -88,6 +97,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 grid grid-cols-7 gap-4">
+      {/* Sidebar */}
       <div className="col-span-1 p-6 sticky top-0 bg-gray-100">
         <div className="flex items-center justify-start gap-3">
           <div className="p-2 bg-blue-500 rounded-lg">
@@ -97,6 +107,7 @@ export default function Dashboard() {
             Optics Chart
           </h1>
         </div>
+
         <div className="flex flex-col justify-between gap-20">
           <NavigationMenu className="mt-6 ml-6">
             <NavigationMenuList className="flex flex-col space-y-2 items-start">
@@ -108,6 +119,7 @@ export default function Dashboard() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -120,6 +132,7 @@ export default function Dashboard() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -134,43 +147,80 @@ export default function Dashboard() {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-          <Popover>
-            <PopoverTrigger className="text-sm flex flex-row justify-start items-center hover:cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground rounded-md ml-6 px-2 py-2">
-              <Settings className="mr-2 h-4 w-4" />
-              Dashboard Settings
-            </PopoverTrigger>
 
-            <PopoverContent className="text-sm w-56 space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="showRecharts"
-                  checked={showRecharts}
-                  onCheckedChange={(checked) => setShowRecharts(!!checked)}
-                />
-                <Label
-                  htmlFor="showRecharts"
-                  className="text-sm font-medium leading-none cursor-pointer"
-                >
-                  Show Recharts
-                </Label>
+          {/* Dashboard Settings as Dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="text-sm flex flex-row justify-start items-center hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground rounded-md ml-6 px-2 py-2"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Dashboard Settings
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Dashboard Settings</DialogTitle>
+                <DialogDescription>
+                  Customize which charts appear in your dashboard view.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showRecharts"
+                    checked={choiceShowRecharts}
+                    onCheckedChange={(checked) =>
+                      setChoiceShowRecharts(!!checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="showRecharts"
+                    className="text-sm font-medium leading-none cursor-pointer"
+                  >
+                    Show Recharts
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showChartsJS"
+                    checked={choiceShowChartJs}
+                    onCheckedChange={(checked) =>
+                      setChoiceShowChartJs(!!checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="showChartsJS"
+                    className="text-sm font-medium leading-none cursor-pointer"
+                  >
+                    Show Charts.js
+                  </Label>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="showChartsJS"
-                  checked={showChartsJs}
-                  onCheckedChange={(checked) => setShowChartsJs(!!checked)}
-                />
-                <Label
-                  htmlFor="showChartsJS"
-                  className="text-sm font-medium leading-none cursor-pointer"
-                >
-                  Show Charts.js
-                </Label>
-              </div>
-            </PopoverContent>
-          </Popover>
+
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      setShowRecharts(choiceShowRecharts);
+                      setShowChartsJs(choiceShowChartJs);
+                    }}
+                  >
+                    Save Changes
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
+
+      {/* Main Content */}
       <div className="w-full mx-auto p-6 col-span-6">
         {/* Header */}
         <div className="mb-8">
