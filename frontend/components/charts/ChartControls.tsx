@@ -20,6 +20,8 @@ import {
 import ChartPreview from "./ChartPreview";
 import { BarChart3, LineChart, PieChart, Settings2 } from "lucide-react";
 import { fetchAggregatedData } from "@/lib/api/chart";
+import { Slider } from "../ui/slider";
+import { useDataStore } from "@/store/dataStore";
 
 interface ChartControlsProps {
   headers: string[];
@@ -63,6 +65,8 @@ export default function ChartControls({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { minYear, maxYear, getYearRange } = useDataStore();
+
   const chartIcons = {
     bar: BarChart3,
     line: LineChart,
@@ -70,6 +74,13 @@ export default function ChartControls({
   };
 
   const ChartIcon = chartIcons[chartType];
+
+  useEffect(() => {
+    const loadYearRange = async () => {
+      await getYearRange(uploadId);
+    };
+    loadYearRange();
+  }, [uploadId]);
 
   // Fetch aggregated data when config changes
   useEffect(() => {
@@ -198,28 +209,32 @@ export default function ChartControls({
             </div>
           </div>
 
-          {/* Year Filter */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">From Year</Label>
-              <Input
-                type="number"
-                placeholder="e.g. 2013"
-                value={yearFrom ?? ""}
-                onChange={(e) => setYearFrom(e.target.value || null)}
-                className="bg-white"
-              />
+          {/* Year Range Slider */}
+          <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+            <Label className="text-sm font-medium">Year Range</Label>
+
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <span>{yearFrom ?? "—"}</span>
+              <span>{yearTo ?? "—"}</span>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">To Year (optional)</Label>
-              <Input
-                type="number"
-                placeholder="e.g. 2023"
-                value={yearTo ?? ""}
-                onChange={(e) => setYearTo(e.target.value || null)}
-                className="bg-white"
-              />
-            </div>
+
+            <Slider
+              defaultValue={[
+                Number(yearFrom) || minYear,
+                Number(yearTo) || maxYear,
+              ]}
+              min={minYear}
+              max={maxYear}
+              step={1}
+              onValueChange={(value) => {
+                setYearFrom(String(value[0]));
+                setYearTo(String(value[1]));
+              }}
+            />
+
+            <p className="text-xs text-gray-500">
+              Select a range of years for data filtering.
+            </p>
           </div>
         </CardContent>
       </Card>

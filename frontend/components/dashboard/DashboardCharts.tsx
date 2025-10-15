@@ -39,6 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Slider } from "../ui/slider";
 
 interface DashboardChartsProps {
   charts: any[];
@@ -68,7 +69,7 @@ export default function DashboardCharts({
   const router = useRouter();
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const [globalYearFrom, setGlobalYearFrom] = useState<string | null>(
     initialYearFrom?.toString() || ""
@@ -81,7 +82,16 @@ export default function DashboardCharts({
   const [debouncedYearTo, setDebouncedYearTo] = useState(globalYearTo);
   const [saving, setSaving] = useState(false);
 
-  const { refreshDashboard } = useDataStore();
+  const { minYear, maxYear, getYearRange, refreshDashboard } = useDataStore();
+
+  useEffect(() => {
+    const loadYearRange = async () => {
+      await getYearRange(uploadId);
+      if (!globalYearFrom) setGlobalYearFrom(minYear.toString());
+      if (!globalYearTo) setGlobalYearTo(maxYear.toString());
+    };
+    loadYearRange();
+  }, [uploadId]);
 
   // Debounce typing
   useEffect(() => {
@@ -200,21 +210,6 @@ export default function DashboardCharts({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className="h-8 px-3"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>List View</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
@@ -227,47 +222,68 @@ export default function DashboardCharts({
                 <p>Grid View</p>
               </TooltipContent>
             </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="h-8 px-3"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>List View</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
         {/* Global Year Filter */}
-        <div className="flex items-center gap-3 bg-white border rounded-lg p-3 shadow-sm">
-          <Calendar className="w-4 h-4 text-blue-600" />
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">From Year</Label>
-            <Input
-              type="number"
-              placeholder="e.g. 2013"
-              value={globalYearFrom ?? ""}
-              onChange={(e) => setGlobalYearFrom(e.target.value || null)}
-              className="bg-white"
-            />
+        <div className="flex flex-col lg:flex-row items-center gap-4 bg-white border rounded-lg p-4 shadow-sm w-full">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-blue-600" />
+            <span className="text-sm font-medium">Year Range</span>
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">To Year (optional)</Label>
-            <Input
-              type="number"
-              placeholder="e.g. 2023"
-              value={globalYearTo ?? ""}
-              onChange={(e) => setGlobalYearTo(e.target.value || null)}
-              className="bg-white"
+
+          <div className="flex-1">
+            <Slider
+              value={[
+                Number(globalYearFrom) || minYear,
+                Number(globalYearTo) || maxYear,
+              ]}
+              min={minYear}
+              max={maxYear}
+              step={1}
+              onValueChange={(value: number[]) => {
+                setGlobalYearFrom(value[0].toString());
+                setGlobalYearTo(value[1].toString());
+              }}
+              className="w-full"
             />
+            <div className="flex justify-between text-sm text-gray-600 mt-2">
+              <span>{globalYearFrom || "Start"}</span>
+              <span>{globalYearTo || "End"}</span>
+            </div>
           </div>
 
           {/* Save / Reset buttons */}
-          <Button
-            size="sm"
-            variant="default"
-            className="gap-2"
-            onClick={handleSaveFilters}
-            disabled={saving}
-          >
-            <Save className="w-4 h-4" />
-            {saving ? "Saving..." : "Save Filters"}
-          </Button>
-          <Button size="sm" variant="secondary" onClick={handleReset}>
-            Reset
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              className="gap-2"
+              onClick={handleSaveFilters}
+              disabled={saving}
+            >
+              <Save className="w-4 h-4" />
+              {saving ? "Saving..." : "Save Filters"}
+            </Button>
+            <Button size="sm" variant="secondary" onClick={handleReset}>
+              Reset
+            </Button>
+          </div>
         </div>
       </div>
 

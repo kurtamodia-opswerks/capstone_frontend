@@ -143,3 +143,14 @@ export async function deleteChart(chartId: string) {
   if (!res.ok) throw new Error("Failed to delete chart");
   return res.json();
 }
+
+export async function fetchYearRange(uploadId?: string | null) {
+  const url = uploadId
+    ? `${process.env.NEXT_PUBLIC_API_URL}/chart/year-range?upload_id=${uploadId}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/chart/year-range`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch year range");
+
+  return res.json(); // expected: { min_year: number, max_year: number }
+}
