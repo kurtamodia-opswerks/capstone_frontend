@@ -47,9 +47,9 @@ export default function ChartJSRenderer({
   onRenderEnd,
 }: ChartJSRendererProps) {
   useEffect(() => {
-    // Measure after the chart is painted
-    const raf = requestAnimationFrame(() => onRenderEnd?.());
-    return () => cancelAnimationFrame(raf);
+    onRenderStart?.();
+    const timeout = setTimeout(() => onRenderEnd?.(), 0);
+    return () => clearTimeout(timeout);
   }, [data, chartType]);
 
   // Handle missing or invalid data

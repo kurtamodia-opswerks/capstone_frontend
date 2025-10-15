@@ -60,7 +60,6 @@ export default function ChartPreview({
   const [openDialog, setOpenDialog] = useState(false);
   const [chartName, setChartName] = useState("");
 
-  // Each chart type has its own timer
   const rechartsTimer = useRenderTimer();
   const chartjsTimer = useRenderTimer();
   const plotlyTimer = useRenderTimer();
@@ -128,19 +127,14 @@ export default function ChartPreview({
             </span>
           </h4>
 
-          {(() => {
-            // Start timer just before render
-            rechartsTimer.onRenderStart();
-            return (
-              <RechartsRenderer
-                chartType={chartType}
-                data={data}
-                xAxis={xAxis}
-                yAxis={yAxis}
-                onRenderEnd={rechartsTimer.onRenderEnd}
-              />
-            );
-          })()}
+          <RechartsRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={rechartsTimer.onRenderStart}
+            onRenderEnd={rechartsTimer.onRenderEnd}
+          />
         </div>
       )}
 
@@ -158,18 +152,14 @@ export default function ChartPreview({
             </span>
           </h4>
 
-          {(() => {
-            chartjsTimer.onRenderStart();
-            return (
-              <ChartJSRenderer
-                chartType={chartType}
-                data={data}
-                xAxis={xAxis}
-                yAxis={yAxis}
-                onRenderEnd={chartjsTimer.onRenderEnd}
-              />
-            );
-          })()}
+          <ChartJSRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={chartjsTimer.onRenderStart}
+            onRenderEnd={chartjsTimer.onRenderEnd}
+          />
         </div>
       )}
 
@@ -187,18 +177,14 @@ export default function ChartPreview({
             </span>
           </h4>
 
-          {(() => {
-            plotlyTimer.onRenderStart();
-            return (
-              <PlotlyRenderer
-                chartType={chartType}
-                data={data}
-                xAxis={xAxis}
-                yAxis={yAxis}
-                onRenderEnd={plotlyTimer.onRenderEnd}
-              />
-            );
-          })()}
+          <PlotlyRenderer
+            chartType={chartType}
+            data={data}
+            xAxis={xAxis}
+            yAxis={yAxis}
+            onRenderStart={plotlyTimer.onRenderStart}
+            onRenderEnd={plotlyTimer.onRenderEnd}
+          />
         </div>
       )}
 
@@ -216,12 +202,14 @@ export default function ChartPreview({
                   ? `${rechartsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
               </li>
+
               <li>
                 <span className="font-bold text-green-600">Chart.js:</span>{" "}
                 {chartjsTimer.renderTime
                   ? `${chartjsTimer.renderTime.toFixed(2)} ms`
                   : "–"}
               </li>
+
               <li>
                 <span className="font-bold text-purple-600">Plotly:</span>{" "}
                 {plotlyTimer.renderTime
@@ -265,7 +253,7 @@ export default function ChartPreview({
                 )}
             </ul>
 
-            {/* Save Chart Button */}
+            {/* Save Chart */}
             <div className="pt-4 flex items-center gap-2">
               <Button
                 onClick={() => setOpenDialog(true)}

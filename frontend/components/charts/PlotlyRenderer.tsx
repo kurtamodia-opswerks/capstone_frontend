@@ -25,9 +25,9 @@ export default function PlotlyRenderer({
   onRenderEnd,
 }: PlotlyRendererProps) {
   useEffect(() => {
-    // Measure after the chart is painted
-    const raf = requestAnimationFrame(() => onRenderEnd?.());
-    return () => cancelAnimationFrame(raf);
+    onRenderStart?.();
+    const timeout = setTimeout(() => onRenderEnd?.(), 0);
+    return () => clearTimeout(timeout);
   }, [data, chartType]);
 
   if (!data || data.length === 0 || !xAxis || !yAxis) {
