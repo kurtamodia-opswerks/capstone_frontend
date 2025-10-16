@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Database, Layers3, Upload } from "lucide-react";
+import { BanknoteX, Database, Layers3, Upload } from "lucide-react";
 import DatasetUploadForm from "@/components/dataset/DatasetUploadForm";
 
 export default function VisualizationModeCard() {
@@ -33,7 +33,7 @@ export default function VisualizationModeCard() {
               <Upload className="h-4 w-4 mr-1" /> Per Dataset
             </TabsTrigger>
             <TabsTrigger value="schemaless">
-              <Upload className="h-4 w-4 mr-1" /> Schema-less
+              <BanknoteX className="h-4 w-4 mr-1" /> Schema-less
             </TabsTrigger>
           </TabsList>
 

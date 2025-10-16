@@ -1,293 +1,35 @@
 "use client";
 
-import DashboardCharts from "@/components/dashboard/DashboardCharts";
-import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Settings } from "lucide-react";
-import { useDataStore } from "@/store/dataStore";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FileText, Plus, ChartSpline } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useDashboard } from "./hooks/useDashboard";
+import DashboardSidebar from "./components/DashboardSidebar";
+import DashboardEmptyState from "./components/DashboardEmptyState";
+import DashboardContent from "./components/DashboardContent";
 
 export default function Dashboard() {
-  const router = useRouter();
   const searchParams = useSearchParams();
+
   const mode =
     searchParams.get("mode") === "dataset"
       ? "dataset"
       : searchParams.get("mode") === "aggregated"
       ? "aggregated"
       : "schemaless";
+
   const uploadId = searchParams.get("uploadId");
-  const [loading, setLoading] = useState(true);
-  const [choiceShowChartJs, setChoiceShowChartJs] = useState(true);
-  const [choiceShowRecharts, setChoiceShowRecharts] = useState(true);
-  const [choiceShowPlotly, setChoiceShowPlotly] = useState(true);
-  const [showChartsJs, setShowChartsJs] = useState(true);
-  const [showRecharts, setShowRecharts] = useState(true);
-  const [showPlotly, setShowPlotly] = useState(true);
 
-  const { dashboard, refreshDashboard } = useDataStore();
+  const dashboardState = useDashboard(mode, uploadId);
+  const { dashboard, loading } = dashboardState;
 
-  // Only refresh when mode or uploadId changes
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        await refreshDashboard(mode, uploadId || null);
-      } catch (err) {
-        console.error("Error loading dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [mode, uploadId, refreshDashboard]);
-
-  const handleCreateChart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams({ mode });
-    if (uploadId) params.set("uploadId", uploadId);
-    router.push(`/build?${params.toString()}`);
-  };
-
-  const handleImportChart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams({ mode });
-    if (uploadId) params.set("uploadId", uploadId);
-    router.push(`/charts?${params.toString()}`);
-  };
-
-  // Handle missing or invalid dashboard gracefully
+  // Handle missing or invalid dashboard
   if (!dashboard || !dashboard._id) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
-        <Card className="w-full max-w-md mx-4">
-          <CardContent className="pt-6 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <BarChart3 className="h-8 w-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No Dashboard Found
-            </h3>
-            <p className="text-gray-500 text-sm">
-              Add your first chart to see it appear here.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <DashboardEmptyState />;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 grid grid-cols-7 gap-4">
-      {/* Sidebar */}
-      <div className="col-span-1 p-6 sticky top-0 bg-gray-100">
-        <div className="flex items-center justify-start gap-3">
-          <div className="p-2 bg-blue-500 rounded-lg">
-            <BarChart3 className="h-4 w-4 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Optics Chart
-          </h1>
-        </div>
-
-        <div className="flex flex-col justify-between gap-20">
-          <NavigationMenu className="mt-6 ml-6">
-            <NavigationMenuList className="flex flex-col space-y-2 items-start">
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/" className="flex flex-row gap-1">
-                    <FileText className="mr-2 h-8 w-8" />
-                    <span>Use a new dataset</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/"
-                    onClick={handleImportChart}
-                    className="flex flex-row gap-1"
-                  >
-                    <ChartSpline className="mr-2 h-4 w-4" />
-                    Import a new chart
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/"
-                    onClick={handleCreateChart}
-                    className="flex flex-row gap-1"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create a new chart
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-
-          {/* Dashboard Settings as Dialog */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                className="text-sm flex flex-row justify-start items-center hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground rounded-md ml-6 px-2 py-2"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Dashboard Settings
-              </Button>
-            </DialogTrigger>
-
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Dashboard Settings</DialogTitle>
-                <DialogDescription>
-                  Customize which charts appear in your dashboard view.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 py-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="showRecharts"
-                    checked={choiceShowRecharts}
-                    onCheckedChange={(checked) =>
-                      setChoiceShowRecharts(!!checked)
-                    }
-                  />
-                  <Label
-                    htmlFor="showRecharts"
-                    className="text-sm font-medium leading-none cursor-pointer"
-                  >
-                    Show Recharts
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="showChartsJS"
-                    checked={choiceShowChartJs}
-                    onCheckedChange={(checked) =>
-                      setChoiceShowChartJs(!!checked)
-                    }
-                  />
-                  <Label
-                    htmlFor="showChartsJS"
-                    className="text-sm font-medium leading-none cursor-pointer"
-                  >
-                    Show Charts.js
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="showPlotly"
-                    checked={choiceShowPlotly}
-                    onCheckedChange={(checked) =>
-                      setChoiceShowPlotly(!!checked)
-                    }
-                  />
-                  <Label
-                    htmlFor="showPlotly"
-                    className="text-sm font-medium leading-none cursor-pointer"
-                  >
-                    Show Plotly
-                  </Label>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      setShowRecharts(choiceShowRecharts);
-                      setShowChartsJs(choiceShowChartJs);
-                      setShowPlotly(choiceShowPlotly);
-                    }}
-                  >
-                    Save Changes
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="w-full mx-auto p-6 col-span-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Analytics Dashboard
-              </h1>
-              <p className="text-gray-600 mt-2">
-                {mode === "dataset"
-                  ? "Dataset Analysis"
-                  : "Aggregated Insights"}
-                {uploadId && ` • Upload ID: ${uploadId}`}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border shadow-sm">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  mode === "dataset" ? "bg-blue-500" : "bg-green-500"
-                }`}
-              />
-              <span className="text-sm font-medium capitalize">
-                {mode} Mode
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts Grid */}
-        {!loading && (
-          <DashboardCharts
-            charts={dashboard.charts || []}
-            mode={mode}
-            uploadId={uploadId}
-            dashboardId={dashboard._id}
-            initialYearFrom={dashboard.year_from}
-            initialYearTo={dashboard.year_to}
-            handleImportChart={handleImportChart}
-            showRecharts={showRecharts}
-            showChartJs={showChartsJs}
-            showPlotly={showPlotly}
-          />
-        )}
-      </div>
+      <DashboardSidebar mode={mode} uploadId={uploadId} {...dashboardState} />
+      <DashboardContent mode={mode} uploadId={uploadId} {...dashboardState} />
     </div>
   );
 }
