@@ -38,7 +38,11 @@ export default function ChartsPageClient() {
 
   // derive params from URL
   const mode =
-    searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
+    searchParams.get("mode") === "dataset"
+      ? "dataset"
+      : searchParams.get("mode") === "aggregated"
+      ? "aggregated"
+      : "schemaless";
   const uploadId = searchParams.get("uploadId");
 
   const { headers, savedCharts, refreshCharts } = useDataStore();

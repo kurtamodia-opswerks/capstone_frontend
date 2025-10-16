@@ -34,7 +34,11 @@ export default function Dashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode =
-    searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
+    searchParams.get("mode") === "dataset"
+      ? "dataset"
+      : searchParams.get("mode") === "aggregated"
+      ? "aggregated"
+      : "schemaless";
   const uploadId = searchParams.get("uploadId");
   const [loading, setLoading] = useState(true);
   const [choiceShowChartJs, setChoiceShowChartJs] = useState(true);

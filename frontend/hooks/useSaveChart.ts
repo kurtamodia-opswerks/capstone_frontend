@@ -7,7 +7,7 @@ export function useSaveChart() {
   const [saving, setSaving] = useState(false);
 
   const saveChart = async (payload: {
-    mode: "aggregated" | "dataset";
+    mode: "aggregated" | "dataset" | "schemaless";
     uploadId?: string | null;
     chartType: "bar" | "line" | "pie";
     xAxis: string;

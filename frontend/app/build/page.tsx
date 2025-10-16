@@ -9,7 +9,11 @@ import { fetchChartById } from "@/lib/api/chart";
 export default function BuildPage() {
   const searchParams = useSearchParams();
   const mode =
-    searchParams.get("mode") === "dataset" ? "dataset" : "aggregated";
+    searchParams.get("mode") === "dataset"
+      ? "dataset"
+      : searchParams.get("mode") === "aggregated"
+      ? "aggregated"
+      : "schemaless";
   const uploadId = searchParams.get("uploadId");
   const chartId = searchParams.get("chartId");
 

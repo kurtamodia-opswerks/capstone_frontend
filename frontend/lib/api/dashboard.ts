@@ -1,5 +1,5 @@
 export interface DashboardData {
-  mode: "aggregated" | "dataset";
+  mode: "aggregated" | "dataset" | "schemaless";
   upload_id?: string | null;
   chart_id?: string;
 }

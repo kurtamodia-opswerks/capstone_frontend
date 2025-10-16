@@ -29,7 +29,7 @@ export async function fetchAggregatedData(
 
 // save chart
 export async function postSaveChart(
-  mode: "aggregated" | "dataset",
+  mode: "aggregated" | "dataset" | "schemaless",
   uploadId: string | null,
   chartType: string,
   xAxis: string,
@@ -71,7 +71,7 @@ export async function fetchSavedCharts(mode: string, uploadId: string | null) {
     } catch (err) {
       console.error(err);
     }
-  } else if (mode === "dataset" && uploadId) {
+  } else if ((mode === "dataset" || mode === "schemaless") && uploadId) {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/chart/saved/${uploadId}`
@@ -96,7 +96,7 @@ export async function fetchChartById(chartId: string) {
 export async function updateChart(
   chartId: string,
   updatedData: {
-    mode?: "aggregated" | "dataset";
+    mode?: "aggregated" | "dataset" | "schemaless";
     uploadId?: string | null;
     chartType?: string;
     xAxis?: string;

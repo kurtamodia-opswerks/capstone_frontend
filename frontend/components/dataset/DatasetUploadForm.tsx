@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadDataset } from "@/lib/api/dataset";
+import { uploadSchemaless } from "@/lib/api/schema_less";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Upload,
@@ -15,6 +16,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DatasetSelector from "./DatasetSelector";
 import { useRouter } from "next/navigation";
+import SchemalessSelector from "./SchemalessSelector";
 
 interface UploadResponse {
   message: string;
@@ -24,7 +26,7 @@ interface UploadResponse {
 }
 
 interface DatasetUploadFormProps {
-  mode: "aggregated" | "dataset";
+  mode: "aggregated" | "dataset" | "schemaless";
 }
 
 export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
@@ -68,18 +70,28 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
 
     setStatus("uploading");
     try {
-      const uploaded: UploadResponse = await uploadDataset(file);
-      setStatus(
-        `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
-      );
-      setFile(null);
-
-      if (mode === "dataset") {
-        router.push(`/charts?mode=dataset&uploadId=${uploaded.upload_id}`);
-      } else {
+      if (mode === "schemaless") {
+        const uploaded: UploadResponse = await uploadSchemaless(file);
         setStatus(
-          `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
         );
+        setFile(null);
+
+        router.push(`/charts?mode=schemaless&uploadId=${uploaded.upload_id}`);
+      } else {
+        const uploaded: UploadResponse = await uploadDataset(file);
+        setStatus(
+          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+        );
+        setFile(null);
+
+        if (mode === "dataset") {
+          router.push(`/charts?mode=dataset&uploadId=${uploaded.upload_id}`);
+        } else {
+          setStatus(
+            `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+          );
+        }
       }
     } catch (error: any) {
       setStatus(`error: ${error.message ?? "An unknown error occurred"}`);
@@ -176,7 +188,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
             </h3>
             <DatasetSelector />
           </div>
-        ) : (
+        ) : mode === "aggregated" ? (
           <div className="mt-6 border-t pt-4 text-center">
             <h3 className="text-lg font-medium mb-6 text-center text-muted-foreground">
               or use the latest aggregated dataset
@@ -190,7 +202,14 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
               Use Aggregated Dataset
             </Button>
           </div>
-        )}
+        ) : mode === "schemaless" ? (
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-lg font-medium mb-2 text-center text-muted-foreground">
+              or choose from schemaless uploads
+            </h3>
+            <SchemalessSelector />
+          </div>
+        ) : null}
       </div>
 
       {/* Status Alert */}

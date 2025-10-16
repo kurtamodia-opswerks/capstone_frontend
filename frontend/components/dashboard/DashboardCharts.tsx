@@ -40,10 +40,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "../ui/slider";
+import { fetchAggregateSchemalessData } from "@/lib/api/schema_less";
 
 interface DashboardChartsProps {
   charts: any[];
-  mode: "aggregated" | "dataset";
+  mode: "aggregated" | "dataset" | "schemaless";
   uploadId: string | null;
   dashboardId: string;
   initialYearFrom?: number | null;
@@ -85,6 +86,9 @@ export default function DashboardCharts({
   const { minYear, maxYear, getYearRange, refreshDashboard } = useDataStore();
 
   useEffect(() => {
+    if (mode === "schemaless") {
+      return;
+    }
     const loadYearRange = async () => {
       await getYearRange(uploadId);
       if (!globalYearFrom) setGlobalYearFrom(minYear.toString());
@@ -110,15 +114,26 @@ export default function DashboardCharts({
 
       for (const chart of charts) {
         try {
-          const data = await fetchAggregatedData(
-            uploadId,
-            chart.x_axis,
-            chart.y_axis,
-            chart.agg_func,
-            debouncedYearFrom || chart.year_from,
-            debouncedYearTo || chart.year_to
-          );
-          results[chart._id] = data;
+          if (mode === "schemaless" && uploadId) {
+            const data = await fetchAggregateSchemalessData({
+              upload_id: uploadId,
+              x_axis: chart.x_axis,
+              y_axis: chart.y_axis,
+              agg_func: chart.agg_func,
+            });
+            results[chart._id] = data;
+            continue;
+          } else {
+            const data = await fetchAggregatedData(
+              uploadId,
+              chart.x_axis,
+              chart.y_axis,
+              chart.agg_func,
+              debouncedYearFrom || chart.year_from,
+              debouncedYearTo || chart.year_to
+            );
+            results[chart._id] = data;
+          }
         } catch (err) {
           console.error(`Failed to fetch data for chart ${chart._id}`, err);
           results[chart._id] = [];

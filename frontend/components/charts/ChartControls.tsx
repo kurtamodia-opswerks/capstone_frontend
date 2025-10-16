@@ -22,11 +22,12 @@ import { BarChart3, LineChart, PieChart, Settings2 } from "lucide-react";
 import { fetchAggregatedData } from "@/lib/api/chart";
 import { Slider } from "../ui/slider";
 import { useDataStore } from "@/store/dataStore";
+import { fetchAggregateSchemalessData } from "@/lib/api/schema_less";
 
 interface ChartControlsProps {
   headers: string[];
   uploadId?: string | null;
-  mode: "aggregated" | "dataset";
+  mode: "aggregated" | "dataset" | "schemaless";
   initialConfig?: {
     chartType?: string;
     xAxis?: string;
@@ -76,6 +77,9 @@ export default function ChartControls({
   const ChartIcon = chartIcons[chartType];
 
   useEffect(() => {
+    if (mode === "schemaless") {
+      return;
+    }
     const loadYearRange = async () => {
       await getYearRange(uploadId);
     };
@@ -84,22 +88,34 @@ export default function ChartControls({
 
   // Fetch aggregated data when config changes
   useEffect(() => {
-    console.log(uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo);
+    if (!xAxis || !yAxis) return;
+
     const fetchData = async () => {
-      if (!xAxis || !yAxis) return;
       try {
         setLoading(true);
         setError(null);
-        const res = await fetchAggregatedData(
-          uploadId,
-          xAxis,
-          yAxis,
-          aggFunc,
-          yearFrom,
-          yearTo
-        );
+
+        let res = [];
+        if (mode === "schemaless" && uploadId) {
+          res = await fetchAggregateSchemalessData({
+            upload_id: uploadId,
+            x_axis: xAxis,
+            y_axis: yAxis,
+            agg_func: aggFunc,
+          });
+        } else {
+          res = await fetchAggregatedData(
+            uploadId,
+            xAxis,
+            yAxis,
+            aggFunc,
+            yearFrom,
+            yearTo
+          );
+        }
+
         setData(res);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError("Failed to fetch chart data.");
       } finally {
@@ -108,7 +124,7 @@ export default function ChartControls({
     };
 
     fetchData();
-  }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo]);
+  }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo, mode]);
 
   return (
     <div className="space-y-6">

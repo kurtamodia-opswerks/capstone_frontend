@@ -37,7 +37,7 @@ export default function ChartPreview({
   showRecharts = true,
   showPlotly = true,
 }: {
-  mode: "aggregated" | "dataset";
+  mode: "aggregated" | "dataset" | "schemaless";
   chartType: "bar" | "line" | "pie";
   data: any[];
   xAxis: string | null;
