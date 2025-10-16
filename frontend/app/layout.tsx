@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Optics Chart Benchmarks",
+  title: "Chart Builder & Chart Benchmarks",
   description:
     "Both a practial tool for creating charts by uploading datasets as well as a benchmarking tool for chart libraries.",
 };
