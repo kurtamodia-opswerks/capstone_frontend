@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import type * as Plotly from "plotly.js";
 
-// Dynamically import Plotly for SSR safety
+// Dynamically import for SSR safety
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 interface PlotlyRendererProps {
@@ -26,11 +26,9 @@ export default function PlotlyRenderer({
 }: PlotlyRendererProps) {
   useEffect(() => {
     onRenderStart?.();
-    const timeout = setTimeout(() => onRenderEnd?.(), 0);
-    return () => clearTimeout(timeout);
   }, [data, chartType]);
 
-  if (!data || data.length === 0 || !xAxis || !yAxis) {
+  if (!data?.length || !xAxis || !yAxis) {
     return <p className="text-gray-400 text-center">No data to visualize</p>;
   }
 
@@ -52,7 +50,7 @@ export default function PlotlyRenderer({
         line: { color: "#16a34a" },
       },
     ];
-  } else if (chartType === "pie") {
+  } else {
     plotData = [{ labels: xValues, values: yValues, type: "pie" }];
   }
 
@@ -72,6 +70,7 @@ export default function PlotlyRenderer({
         layout={layout}
         useResizeHandler
         style={{ width: "100%", height: "100%" }}
+        onAfterPlot={onRenderEnd}
       />
     </div>
   );

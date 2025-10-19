@@ -48,9 +48,7 @@ export default function ChartJSRenderer({
 }: ChartJSRendererProps) {
   useEffect(() => {
     onRenderStart?.();
-    const timeout = setTimeout(() => onRenderEnd?.(), 0);
-    return () => clearTimeout(timeout);
-  }, [data, chartType]);
+  }, [chartType, data]);
 
   // Handle missing or invalid data
   if (!data || data.length === 0 || !xAxis || !yAxis) {
@@ -101,6 +99,10 @@ export default function ChartJSRenderer({
   const options: ChartOptions<any> = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 0,
+      onComplete: () => onRenderEnd?.(), // exact render end
+    },
     plugins: {
       legend: {
         position: "bottom",
