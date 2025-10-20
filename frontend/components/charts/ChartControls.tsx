@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ChartPreview from "./ChartPreview";
-import { BarChart3, LineChart, PieChart, Settings2 } from "lucide-react";
+import { BarChart3, LineChart, PieChart, Sliders } from "lucide-react";
 import { fetchAggregatedData } from "@/lib/api/chart";
 import { Slider } from "../ui/slider";
 import { useDataStore } from "@/store/dataStore";
@@ -127,138 +127,164 @@ export default function ChartControls({
   }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo, mode]);
 
   return (
-    <div className="space-y-6">
-      {/* Configuration Card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Settings2 className="h-5 w-5 text-blue-600" />
-            Chart Configuration
-          </CardTitle>
-          <CardDescription>
-            Customize your visualization by selecting data columns and chart
-            type
-          </CardDescription>
-        </CardHeader>
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
+      {/* Configuration Panel - Left Sidebar */}
+      <div className="xl:col-span-1 space-y-6">
+        <Card className="sticky top-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sliders className="h-5 w-5 text-blue-600" />
+              Chart Configuration
+            </CardTitle>
+            <CardDescription>
+              Customize your visualization settings
+            </CardDescription>
+          </CardHeader>
 
-        <CardContent className="space-y-6">
-          {/* Chart Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Chart Type */}
-            <div className="space-y-2">
+          <CardContent className="space-y-6">
+            {/* Chart Type Selection */}
+            <div className="space-y-4">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <ChartIcon className="h-4 w-4" />
                 Chart Type
               </Label>
-              <Select
-                value={chartType}
-                onValueChange={(val: any) => setChartType(val)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bar">
-                    <BarChart3 className="h-4 w-4 inline-block mr-2" /> Bar
-                    Chart
-                  </SelectItem>
-                  <SelectItem value="line">
-                    <LineChart className="h-4 w-4 inline-block mr-2" /> Line
-                    Chart
-                  </SelectItem>
-                  <SelectItem value="pie">
-                    <PieChart className="h-4 w-4 inline-block mr-2" /> Pie Chart
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setChartType("bar")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartType === "bar"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  <span className="text-xs font-medium">Bar</span>
+                </button>
+                <button
+                  onClick={() => setChartType("line")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartType === "line"
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <LineChart className="h-5 w-5" />
+                  <span className="text-xs font-medium">Line</span>
+                </button>
+                <button
+                  onClick={() => setChartType("pie")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartType === "pie"
+                      ? "border-purple-500 bg-purple-50 text-purple-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <PieChart className="h-5 w-5" />
+                  <span className="text-xs font-medium">Pie</span>
+                </button>
+              </div>
             </div>
 
-            {/* X Axis */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">X Axis</Label>
-              <Select value={xAxis ?? ""} onValueChange={setXAxis}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select X axis" />
-                </SelectTrigger>
-                <SelectContent>
-                  {headers.map((h) => (
-                    <SelectItem key={h} value={h}>
-                      {h}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Data Configuration */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">X Axis Column</Label>
+                <Select value={xAxis ?? ""} onValueChange={setXAxis}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select X axis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {headers.map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Y Axis Column</Label>
+                <Select value={yAxis ?? ""} onValueChange={setYAxis}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Y axis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {headers.map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Aggregation Function
+                </Label>
+                <Select value={aggFunc} onValueChange={setAggFunc}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select function" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sum">Sum</SelectItem>
+                    <SelectItem value="avg">Average</SelectItem>
+                    <SelectItem value="count">Count</SelectItem>
+                    <SelectItem value="min">Minimum</SelectItem>
+                    <SelectItem value="max">Maximum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Y Axis */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Y Axis</Label>
-              <Select value={yAxis ?? ""} onValueChange={setYAxis}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Y axis" />
-                </SelectTrigger>
-                <SelectContent>
-                  {headers.map((h) => (
-                    <SelectItem key={h} value={h}>
-                      {h}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Year Range Slider */}
+            {mode !== "schemaless" && (
+              <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                <Label className="text-sm font-medium">Year Range</Label>
 
-            {/* Aggregation */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Aggregation</Label>
-              <Select value={aggFunc} onValueChange={setAggFunc}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select function" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sum">Sum</SelectItem>
-                  <SelectItem value="avg">Average</SelectItem>
-                  <SelectItem value="count">Count</SelectItem>
-                  <SelectItem value="min">Minimum</SelectItem>
-                  <SelectItem value="max">Maximum</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{yearFrom ?? minYear}</span>
+                  <span>{yearTo ?? maxYear}</span>
+                </div>
 
-          {/* Year Range Slider */}
-          <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <Label className="text-sm font-medium">Year Range</Label>
+                <Slider
+                  defaultValue={[
+                    Number(yearFrom) || minYear,
+                    Number(yearTo) || maxYear,
+                  ]}
+                  min={minYear}
+                  max={maxYear}
+                  step={1}
+                  onValueChange={(value) => {
+                    setYearFrom(String(value[0]));
+                    setYearTo(String(value[1]));
+                  }}
+                />
 
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>{yearFrom ?? "—"}</span>
-              <span>{yearTo ?? "—"}</span>
-            </div>
+                <p className="text-xs text-gray-500">
+                  Select a range of years for data filtering
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-            <Slider
-              defaultValue={[
-                Number(yearFrom) || minYear,
-                Number(yearTo) || maxYear,
-              ]}
-              min={minYear}
-              max={maxYear}
-              step={1}
-              onValueChange={(value) => {
-                setYearFrom(String(value[0]));
-                setYearTo(String(value[1]));
-              }}
-            />
+      {/* Chart Preview Area - Main Content */}
+      <div className="xl:col-span-2 space-y-6">
+        {/* Status Card */}
+        {error && (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <p className="text-red-700 text-sm">{error}</p>
+            </CardContent>
+          </Card>
+        )}
 
-            <p className="text-xs text-gray-500">
-              Select a range of years for data filtering.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Chart Preview */}
-      {xAxis && yAxis && (
-        <Card>
-          <CardHeader>
+        {/* Chart Preview */}
+        <Card className="h-full min-h-[600px]">
+          <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-green-600" />
               Live Preview
@@ -267,13 +293,32 @@ export default function ChartControls({
               Real-time visualization of your aggregated data
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {loading ? (
-              <p className="text-center text-gray-500">Loading chart...</p>
-            ) : error ? (
-              <p className="text-center text-red-500">{error}</p>
+          <CardContent className="h-full">
+            {!xAxis || !yAxis ? (
+              <div className="flex items-center justify-center h-64 text-center">
+                <div>
+                  <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">
+                    Select X and Y axis columns to generate chart
+                  </p>
+                </div>
+              </div>
+            ) : loading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading chart data...</p>
+                </div>
+              </div>
             ) : data.length === 0 ? (
-              <p className="text-center text-gray-400">No data available</p>
+              <div className="flex items-center justify-center h-64 text-center">
+                <div>
+                  <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">
+                    No data available for the selected configuration
+                  </p>
+                </div>
+              </div>
             ) : (
               <ChartPreview
                 mode={mode}
@@ -285,11 +330,12 @@ export default function ChartControls({
                 aggFunc={aggFunc}
                 yearFrom={yearFrom}
                 yearTo={yearTo}
+                showPerformancePanel={true}
               />
             )}
           </CardContent>
         </Card>
-      )}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import ChartControls from "@/components/charts/ChartControls";
 import { useBuildData } from "./hooks/useBuildData";
 import BuildHeader from "./components/BuildHeader";
+import { BarChart3 } from "lucide-react";
 
 export default function BuildPage() {
   const searchParams = useSearchParams();
@@ -22,23 +23,38 @@ export default function BuildPage() {
   );
 
   return (
-    <div className="mt-20 mb-20 max-w-7xl mx-auto space-y-8">
-      <BuildHeader />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <BuildHeader />
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading data...</p>
-      ) : headers.length > 0 ? (
-        <ChartControls
-          headers={headers}
-          uploadId={uploadId}
-          mode={mode}
-          initialConfig={initialConfig || undefined}
-        />
-      ) : (
-        <p className="text-center text-gray-400">
-          No headers found. Please upload a dataset first.
-        </p>
-      )}
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading data...</p>
+            </div>
+          </div>
+        ) : headers.length > 0 ? (
+          <ChartControls
+            headers={headers}
+            uploadId={uploadId}
+            mode={mode}
+            initialConfig={initialConfig || undefined}
+          />
+        ) : (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <BarChart3 className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Headers Found
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Please upload a dataset first to get started with visualization.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

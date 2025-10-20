@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
 import PlotlyRenderer from "./PlotlyRenderer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,15 @@ import { useSaveChart } from "@/hooks/useSaveChart";
 import { useRenderTimer } from "@/hooks/useRenderTimer";
 import { updateChart } from "@/lib/api/chart";
 import { useDataStore } from "@/store/dataStore";
+import {
+  BarChart3,
+  LineChart,
+  PieChart,
+  Zap,
+  Save,
+  Trophy,
+  Clock,
+} from "lucide-react";
 
 export default function ChartPreview({
   mode,
@@ -127,168 +136,240 @@ export default function ChartPreview({
     }
   };
 
+  const renderTimes = {
+    recharts: (rechartsTimer.renderTime ?? 0) + (rechartsTimer.paintTime ?? 0),
+    chartjs: (chartjsTimer.renderTime ?? 0) + (chartjsTimer.paintTime ?? 0),
+    plotly: (plotlyTimer.renderTime ?? 0) + (plotlyTimer.paintTime ?? 0),
+  };
+
+  const fastestLibrary = Object.entries(renderTimes).reduce(
+    (fastest, [lib, time]) => {
+      return time > 0 && time < fastest.time ? { lib, time } : fastest;
+    },
+    { lib: "", time: Infinity }
+  );
+
+  const chartConfigs = [
+    {
+      id: "recharts",
+      name: "Recharts",
+      icon: BarChart3,
+      color: "blue",
+      show: showRecharts,
+    },
+    {
+      id: "chartjs",
+      name: "Chart.js",
+      icon: LineChart,
+      color: "green",
+      show: showChartJs,
+    },
+    {
+      id: "plotly",
+      name: "Plotly",
+      icon: PieChart,
+      color: "purple",
+      show: showPlotly,
+    },
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* ===================== RECHARTS ===================== */}
-      {showRecharts && (
+    <div className="space-y-6 h-full">
+      {/* Header with Save Button */}
+      <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-gray-800 mb-2">
-            Recharts{" "}
-            <span className="text-xs text-gray-500">
-              (React Render Time:{" "}
-              {rechartsTimer.renderTime
-                ? `${rechartsTimer.renderTime.toFixed(1)} ms`
-                : "–"}
-              --||--
-            </span>
-            <span className="text-xs text-gray-500">
-              Paint Time:{" "}
-              {rechartsTimer.paintTime
-                ? `${rechartsTimer.paintTime.toFixed(1)} ms`
-                : "–"}
-              )
-            </span>
-          </h4>
-          <Profiler id="recharts" onRender={handleProfilerMetrics}>
-            <RechartsRenderer
-              chartType={chartType}
-              data={data}
-              xAxis={xAxis}
-              yAxis={yAxis}
-              onRenderStart={rechartsTimer.onRenderStart}
-              onRenderEnd={rechartsTimer.onRenderEnd}
-            />
-          </Profiler>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Chart Comparison
+          </h3>
+          <p className="text-sm text-gray-600">
+            Same data, different libraries
+          </p>
         </div>
-      )}
+        <Button
+          onClick={() => setOpenDialog(true)}
+          disabled={!xAxis || !yAxis}
+          className="gap-2"
+        >
+          <Save className="h-4 w-4" />
+          {chartId ? "Update Chart" : "Save Chart"}
+        </Button>
+      </div>
 
-      {/* ===================== CHART.JS ===================== */}
-      {showChartJs && (
-        <div>
-          <h4 className="text-sm font-semibold text-gray-800 mb-2">
-            Chart.js{" "}
-            <span className="text-xs text-gray-500">
-              (React Render Time:{" "}
-              {chartjsTimer.renderTime
-                ? `${chartjsTimer.renderTime.toFixed(1)} ms`
-                : "–"}
-              --||--
-            </span>
-            <span className="text-xs text-gray-500">
-              Paint Time:{" "}
-              {chartjsTimer.paintTime
-                ? `${chartjsTimer.paintTime.toFixed(1)} ms`
-                : "–"}
-              )
-            </span>
-          </h4>
-          <Profiler id="chartjs" onRender={handleProfilerMetrics}>
-            <ChartJSRenderer
-              chartType={chartType}
-              data={data}
-              xAxis={xAxis}
-              yAxis={yAxis}
-              onRenderStart={chartjsTimer.onRenderStart}
-              onRenderEnd={chartjsTimer.onRenderEnd}
-            />
-          </Profiler>
-        </div>
-      )}
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        {chartConfigs.map(
+          (config) =>
+            config.show && (
+              <Card key={config.id} className="h-full flex flex-col">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <config.icon
+                        className={`h-5 w-5 text-${config.color}-600`}
+                      />
+                      <span>{config.name}</span>
+                    </div>
+                    {fastestLibrary.lib === config.id && (
+                      <Trophy className="h-4 w-4 text-yellow-500" />
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 p-4">
+                  <div className=" border rounded-lg">
+                    {config.id === "recharts" && (
+                      <Profiler id="recharts" onRender={handleProfilerMetrics}>
+                        <RechartsRenderer
+                          chartType={chartType}
+                          data={data}
+                          xAxis={xAxis}
+                          yAxis={yAxis}
+                          onRenderStart={rechartsTimer.onRenderStart}
+                          onRenderEnd={rechartsTimer.onRenderEnd}
+                        />
+                      </Profiler>
+                    )}
+                    {config.id === "chartjs" && (
+                      <Profiler id="chartjs" onRender={handleProfilerMetrics}>
+                        <ChartJSRenderer
+                          chartType={chartType}
+                          data={data}
+                          xAxis={xAxis}
+                          yAxis={yAxis}
+                          onRenderStart={chartjsTimer.onRenderStart}
+                          onRenderEnd={chartjsTimer.onRenderEnd}
+                        />
+                      </Profiler>
+                    )}
+                    {config.id === "plotly" && (
+                      <Profiler id="plotly" onRender={handleProfilerMetrics}>
+                        <PlotlyRenderer
+                          chartType={chartType}
+                          data={data}
+                          xAxis={xAxis}
+                          yAxis={yAxis}
+                          onRenderStart={plotlyTimer.onRenderStart}
+                          onRenderEnd={plotlyTimer.onRenderEnd}
+                        />
+                      </Profiler>
+                    )}
+                  </div>
 
-      {/* ===================== PLOTLY ===================== */}
-      {showPlotly && (
-        <div>
-          <h4 className="text-sm font-semibold text-gray-800 mb-2">
-            Plotly{" "}
-            <span className="text-xs text-gray-500">
-              (React Render Time:{" "}
-              {plotlyTimer.renderTime
-                ? `${plotlyTimer.renderTime.toFixed(1)} ms`
-                : "–"}
-              --||--
-            </span>
-            <span className="text-xs text-gray-500">
-              Paint Time:{" "}
-              {plotlyTimer.paintTime
-                ? `${plotlyTimer.paintTime.toFixed(1)} ms`
-                : "–"}
-              )
-            </span>
-          </h4>
-          <Profiler id="plotly" onRender={handleProfilerMetrics}>
-            <PlotlyRenderer
-              chartType={chartType}
-              data={data}
-              xAxis={xAxis}
-              yAxis={yAxis}
-              onRenderStart={plotlyTimer.onRenderStart}
-              onRenderEnd={plotlyTimer.onRenderEnd}
-            />
-          </Profiler>
-        </div>
-      )}
+                  {/* Performance Metric for each chart */}
+                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium">
+                          Render Time + Paint:
+                        </span>
+                      </div>
+                      <span
+                        className={`font-bold ${
+                          fastestLibrary.lib === config.id
+                            ? "text-green-600"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {renderTimes[config.id as keyof typeof renderTimes] > 0
+                          ? `${renderTimes[
+                              config.id as keyof typeof renderTimes
+                            ].toFixed(1)} ms`
+                          : "–"}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+        )}
+      </div>
 
-      {/* ===================== PERFORMANCE PANEL ===================== */}
+      {/* Performance Panel */}
       {showPerformancePanel && (
-        <Card className="bg-gray-50 border-gray-200">
-          <CardContent className="p-4 space-y-4">
-            <h4 className="font-semibold text-gray-800">
-              Performance Comparison
-            </h4>
-            <ul className="text-sm space-y-1 text-gray-700">
-              <li>
-                <span className="font-bold text-blue-600">Recharts:</span>{" "}
-                {rechartsTimer.renderTime && rechartsTimer.paintTime
-                  ? `${(
-                      rechartsTimer.renderTime + rechartsTimer.paintTime
-                    ).toFixed(2)} ms`
-                  : "–"}
-              </li>
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-yellow-500" />
+                  Performance Comparison
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Real-time rendering performance across different libraries
+                </p>
+              </div>
 
-              <li>
-                <span className="font-bold text-green-600">Chart.js:</span>{" "}
-                {chartjsTimer.renderTime && chartjsTimer.paintTime
-                  ? `${(
-                      chartjsTimer.renderTime + chartjsTimer.paintTime
-                    ).toFixed(2)} ms`
-                  : "–"}
-              </li>
+              {fastestLibrary.lib && (
+                <div className="text-right bg-white px-4 py-2 rounded-lg border">
+                  <p className="text-sm font-medium text-gray-700">
+                    Performance Winner
+                  </p>
+                  <p className="text-lg font-bold text-green-600 capitalize flex items-center gap-2">
+                    <Trophy className="h-4 w-4" />
+                    {fastestLibrary.lib}
+                  </p>
+                </div>
+              )}
+            </div>
 
-              <li>
-                <span className="font-bold text-purple-600">Plotly:</span>{" "}
-                {plotlyTimer.renderTime && plotlyTimer.paintTime
-                  ? `${(plotlyTimer.renderTime + plotlyTimer.paintTime).toFixed(
-                      2
-                    )} ms`
-                  : "–"}
-              </li>
-            </ul>
-
-            {/* Save Chart */}
-            <div className="pt-4 flex items-center gap-2">
-              <Button
-                onClick={() => setOpenDialog(true)}
-                disabled={!xAxis || !yAxis}
-              >
-                {chartId ? "Update Chart" : "Save Chart Configuration"}
-              </Button>
+            <div className="grid grid-cols-3 gap-4">
+              {chartConfigs.map(
+                (config) =>
+                  config.show && (
+                    <div
+                      key={config.id}
+                      className={`text-center p-4 rounded-lg transition-all ${
+                        fastestLibrary.lib === config.id
+                          ? "bg-green-100 border-2 border-green-300 shadow-sm"
+                          : "bg-white border border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <config.icon
+                          className={`h-5 w-5 text-${config.color}-600`}
+                        />
+                        <p className="font-semibold text-gray-800">
+                          {config.name}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-3xl font-bold text-gray-900">
+                          {renderTimes[config.id as keyof typeof renderTimes] >
+                          0
+                            ? `${renderTimes[
+                                config.id as keyof typeof renderTimes
+                              ].toFixed(1)}`
+                            : "–"}
+                        </p>
+                        <p className="text-sm text-gray-600">milliseconds</p>
+                      </div>
+                      {fastestLibrary.lib === config.id && (
+                        <div className="mt-2 inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                          <Trophy className="h-3 w-3" />
+                          Fastest
+                        </div>
+                      )}
+                    </div>
+                  )
+              )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* ===================== SAVE / UPDATE DIALOG ===================== */}
+      {/* Save Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {chartId ? "Update Existing Chart" : "Save New Chart"}
+            <DialogTitle className="flex items-center gap-2">
+              <Save className="h-5 w-5" />
+              {chartId ? "Update Chart" : "Save Chart Configuration"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <Label>Chart Name</Label>
             <Input
-              placeholder="Enter chart name"
+              placeholder="Enter a descriptive name for your chart"
               value={chartName}
               onChange={(e) => setChartName(e.target.value)}
             />
@@ -297,14 +378,18 @@ export default function ChartPreview({
             <Button
               onClick={handleSaveChart}
               disabled={!chartName.trim() || saving}
+              className="gap-2"
             >
-              {saving
-                ? chartId
-                  ? "Updating..."
-                  : "Saving..."
-                : chartId
-                ? "Update"
-                : "Save"}
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {chartId ? "Updating..." : "Saving..."}
+                </>
+              ) : chartId ? (
+                "Update Chart"
+              ) : (
+                "Save Chart"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

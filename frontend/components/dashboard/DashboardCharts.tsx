@@ -6,10 +6,8 @@ import {
   removeChartFromDashboard,
   updateDashboardDateRange,
 } from "@/lib/api/dashboard";
-import ChartPreview from "@/components/charts/ChartPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Grid3X3,
   List,
@@ -41,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { Slider } from "../ui/slider";
 import { fetchAggregateSchemalessData } from "@/lib/api/schema_less";
+import DashboardChartPreview from "./DashboardChartPreview";
 
 interface DashboardChartsProps {
   charts: any[];
@@ -394,7 +393,7 @@ export default function DashboardCharts({
 
             <div className={viewMode === "grid" ? "p-4 aspect-video" : "p-6"}>
               {chartData[chart._id] ? (
-                <ChartPreview
+                <DashboardChartPreview
                   mode={mode}
                   chartType={chart.chart_type}
                   data={chartData[chart._id]}
