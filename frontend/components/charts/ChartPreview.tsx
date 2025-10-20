@@ -228,7 +228,7 @@ export default function ChartPreview({
                         />
                       </Profiler>
                     )}
-                    {config.id === "chartjs" && (
+                    {/* {config.id === "chartjs" && (
                       <Profiler id="chartjs" onRender={handleProfilerMetrics}>
                         <ChartJSRenderer
                           chartType={chartType}
@@ -251,7 +251,7 @@ export default function ChartPreview({
                           onRenderEnd={plotlyTimer.onRenderEnd}
                         />
                       </Profiler>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Performance Metric for each chart */}
