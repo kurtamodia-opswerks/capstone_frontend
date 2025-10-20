@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCharts } from "./hooks/useCharts";
 import DatasetInfoCard from "./components/DatasetInfoCard";
 import SavedChartsSection from "./components/SavedChartsSection";
+import ChartsEmptyState from "./components/ChartsEmptyState";
 
 export default function ChartsPageClient() {
   const searchParams = useSearchParams();
@@ -27,6 +28,10 @@ export default function ChartsPageClient() {
     handleAddToDashboard,
     handleDeleteChart,
   } = useCharts(mode, uploadId);
+
+  if (!headers || headers.length === 0) {
+    return <ChartsEmptyState />;
+  }
 
   return (
     <div className="mt-20 mb-20 max-w-7xl mx-auto space-y-8">
