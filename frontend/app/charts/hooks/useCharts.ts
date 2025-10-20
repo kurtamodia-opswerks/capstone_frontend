@@ -14,15 +14,19 @@ export function useCharts(
 
   const { headers, savedCharts, refreshCharts } = useDataStore();
   const [dashboardCharts, setDashboardCharts] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch charts
   useEffect(() => {
+    setLoading(true);
     refreshCharts(mode, uploadId ?? null);
+    setLoading(false);
   }, [mode, uploadId]);
 
   // Fetch dashboard
   useEffect(() => {
     const loadDashboard = async () => {
+      setLoading(true);
       try {
         const res = await fetchDashboard(mode, uploadId);
         if (res?.charts?.length) {
@@ -34,6 +38,7 @@ export function useCharts(
         console.warn("No dashboard found or failed to fetch:", err);
         setDashboardCharts([]);
       }
+      setLoading(false);
     };
     loadDashboard();
   }, [mode, uploadId]);
@@ -82,6 +87,7 @@ export function useCharts(
   };
 
   return {
+    loading,
     headers,
     savedCharts,
     dashboardCharts,
