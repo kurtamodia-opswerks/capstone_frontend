@@ -135,7 +135,14 @@ export default function ChartPreview({
           <h4 className="text-sm font-semibold text-gray-800 mb-2">
             Recharts{" "}
             <span className="text-xs text-gray-500">
-              (Render Time:{" "}
+              (React Render Time:{" "}
+              {rechartsTimer.renderTime
+                ? `${rechartsTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              --||--
+            </span>
+            <span className="text-xs text-gray-500">
+              Paint Time:{" "}
               {rechartsTimer.paintTime
                 ? `${rechartsTimer.paintTime.toFixed(1)} ms`
                 : "–"}
@@ -161,7 +168,14 @@ export default function ChartPreview({
           <h4 className="text-sm font-semibold text-gray-800 mb-2">
             Chart.js{" "}
             <span className="text-xs text-gray-500">
-              (Render Time:{" "}
+              (React Render Time:{" "}
+              {chartjsTimer.renderTime
+                ? `${chartjsTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              --||--
+            </span>
+            <span className="text-xs text-gray-500">
+              Paint Time:{" "}
               {chartjsTimer.paintTime
                 ? `${chartjsTimer.paintTime.toFixed(1)} ms`
                 : "–"}
@@ -187,7 +201,14 @@ export default function ChartPreview({
           <h4 className="text-sm font-semibold text-gray-800 mb-2">
             Plotly{" "}
             <span className="text-xs text-gray-500">
-              (Render Time:{" "}
+              (React Render Time:{" "}
+              {plotlyTimer.renderTime
+                ? `${plotlyTimer.renderTime.toFixed(1)} ms`
+                : "–"}
+              --||--
+            </span>
+            <span className="text-xs text-gray-500">
+              Paint Time:{" "}
               {plotlyTimer.paintTime
                 ? `${plotlyTimer.paintTime.toFixed(1)} ms`
                 : "–"}
