@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Profiler, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import RechartsRenderer from "./RechartsRenderer";
 import ChartJSRenderer from "./ChartJSRenderer";
@@ -64,6 +64,22 @@ export default function ChartPreview({
   const chartjsTimer = useRenderTimer();
   const plotlyTimer = useRenderTimer();
 
+  const handleProfilerMetrics = (
+    id: string,
+    phase: string,
+    actualDuration: number
+  ) => {
+    if (phase === "mount") {
+      if (id === "recharts") {
+        rechartsTimer.setRenderTime(actualDuration);
+      } else if (id === "chartjs") {
+        chartjsTimer.setRenderTime(actualDuration);
+      } else if (id === "plotly") {
+        plotlyTimer.setRenderTime(actualDuration);
+      }
+    }
+  };
+
   const handleSaveChart = async () => {
     if (!xAxis || !yAxis) {
       toast.error("Missing chart configuration");
@@ -120,21 +136,22 @@ export default function ChartPreview({
             Recharts{" "}
             <span className="text-xs text-gray-500">
               (Render Time:{" "}
-              {rechartsTimer.renderTime
-                ? `${rechartsTimer.renderTime.toFixed(1)} ms`
+              {rechartsTimer.paintTime
+                ? `${rechartsTimer.paintTime.toFixed(1)} ms`
                 : "–"}
               )
             </span>
           </h4>
-
-          <RechartsRenderer
-            chartType={chartType}
-            data={data}
-            xAxis={xAxis}
-            yAxis={yAxis}
-            onRenderStart={rechartsTimer.onRenderStart}
-            onRenderEnd={rechartsTimer.onRenderEnd}
-          />
+          <Profiler id="recharts" onRender={handleProfilerMetrics}>
+            <RechartsRenderer
+              chartType={chartType}
+              data={data}
+              xAxis={xAxis}
+              yAxis={yAxis}
+              onRenderStart={rechartsTimer.onRenderStart}
+              onRenderEnd={rechartsTimer.onRenderEnd}
+            />
+          </Profiler>
         </div>
       )}
 
@@ -145,21 +162,22 @@ export default function ChartPreview({
             Chart.js{" "}
             <span className="text-xs text-gray-500">
               (Render Time:{" "}
-              {chartjsTimer.renderTime
-                ? `${chartjsTimer.renderTime.toFixed(1)} ms`
+              {chartjsTimer.paintTime
+                ? `${chartjsTimer.paintTime.toFixed(1)} ms`
                 : "–"}
               )
             </span>
           </h4>
-
-          <ChartJSRenderer
-            chartType={chartType}
-            data={data}
-            xAxis={xAxis}
-            yAxis={yAxis}
-            onRenderStart={chartjsTimer.onRenderStart}
-            onRenderEnd={chartjsTimer.onRenderEnd}
-          />
+          <Profiler id="chartjs" onRender={handleProfilerMetrics}>
+            <ChartJSRenderer
+              chartType={chartType}
+              data={data}
+              xAxis={xAxis}
+              yAxis={yAxis}
+              onRenderStart={chartjsTimer.onRenderStart}
+              onRenderEnd={chartjsTimer.onRenderEnd}
+            />
+          </Profiler>
         </div>
       )}
 
@@ -170,21 +188,22 @@ export default function ChartPreview({
             Plotly{" "}
             <span className="text-xs text-gray-500">
               (Render Time:{" "}
-              {plotlyTimer.renderTime
-                ? `${plotlyTimer.renderTime.toFixed(1)} ms`
+              {plotlyTimer.paintTime
+                ? `${plotlyTimer.paintTime.toFixed(1)} ms`
                 : "–"}
               )
             </span>
           </h4>
-
-          <PlotlyRenderer
-            chartType={chartType}
-            data={data}
-            xAxis={xAxis}
-            yAxis={yAxis}
-            onRenderStart={plotlyTimer.onRenderStart}
-            onRenderEnd={plotlyTimer.onRenderEnd}
-          />
+          <Profiler id="plotly" onRender={handleProfilerMetrics}>
+            <PlotlyRenderer
+              chartType={chartType}
+              data={data}
+              xAxis={xAxis}
+              yAxis={yAxis}
+              onRenderStart={plotlyTimer.onRenderStart}
+              onRenderEnd={plotlyTimer.onRenderEnd}
+            />
+          </Profiler>
         </div>
       )}
 
@@ -198,59 +217,30 @@ export default function ChartPreview({
             <ul className="text-sm space-y-1 text-gray-700">
               <li>
                 <span className="font-bold text-blue-600">Recharts:</span>{" "}
-                {rechartsTimer.renderTime
-                  ? `${rechartsTimer.renderTime.toFixed(2)} ms`
+                {rechartsTimer.renderTime && rechartsTimer.paintTime
+                  ? `${(
+                      rechartsTimer.renderTime + rechartsTimer.paintTime
+                    ).toFixed(2)} ms`
                   : "–"}
               </li>
 
               <li>
                 <span className="font-bold text-green-600">Chart.js:</span>{" "}
-                {chartjsTimer.renderTime
-                  ? `${chartjsTimer.renderTime.toFixed(2)} ms`
+                {chartjsTimer.renderTime && chartjsTimer.paintTime
+                  ? `${(
+                      chartjsTimer.renderTime + chartjsTimer.paintTime
+                    ).toFixed(2)} ms`
                   : "–"}
               </li>
 
               <li>
                 <span className="font-bold text-purple-600">Plotly:</span>{" "}
-                {plotlyTimer.renderTime
-                  ? `${plotlyTimer.renderTime.toFixed(2)} ms`
+                {plotlyTimer.renderTime && plotlyTimer.paintTime
+                  ? `${(plotlyTimer.renderTime + plotlyTimer.paintTime).toFixed(
+                      2
+                    )} ms`
                   : "–"}
               </li>
-
-              {rechartsTimer.renderTime &&
-                chartjsTimer.renderTime &&
-                plotlyTimer.renderTime && (
-                  <li className="pt-2 text-gray-800">
-                    <span className="font-medium">Faster Library:</span>{" "}
-                    {(() => {
-                      const times = [
-                        {
-                          name: "Recharts",
-                          time: rechartsTimer.renderTime,
-                          color: "text-blue-600",
-                        },
-                        {
-                          name: "Chart.js",
-                          time: chartjsTimer.renderTime,
-                          color: "text-green-600",
-                        },
-                        {
-                          name: "Plotly",
-                          time: plotlyTimer.renderTime,
-                          color: "text-purple-600",
-                        },
-                      ];
-                      const fastest = times.reduce((a, b) =>
-                        a.time < b.time ? a : b
-                      );
-                      return (
-                        <span className={`${fastest.color} font-semibold`}>
-                          {fastest.name}
-                        </span>
-                      );
-                    })()}
-                  </li>
-                )}
             </ul>
 
             {/* Save Chart */}
