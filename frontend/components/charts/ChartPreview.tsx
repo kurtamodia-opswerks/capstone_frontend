@@ -216,7 +216,7 @@ export default function ChartPreview({
                 </CardHeader>
                 <CardContent className="flex-1 p-4">
                   <div className=" border rounded-lg">
-                    {config.id === "recharts" && (
+                    {/* {config.id === "recharts" && (
                       <Profiler id="recharts" onRender={handleProfilerMetrics}>
                         <RechartsRenderer
                           chartType={chartType}
@@ -227,7 +227,7 @@ export default function ChartPreview({
                           onRenderEnd={rechartsTimer.onRenderEnd}
                         />
                       </Profiler>
-                    )}
+                    )} */}
                     {config.id === "chartjs" && (
                       <Profiler id="chartjs" onRender={handleProfilerMetrics}>
                         <ChartJSRenderer
@@ -240,7 +240,7 @@ export default function ChartPreview({
                         />
                       </Profiler>
                     )}
-                    {config.id === "plotly" && (
+                    {/* {config.id === "plotly" && (
                       <Profiler id="plotly" onRender={handleProfilerMetrics}>
                         <PlotlyRenderer
                           chartType={chartType}
@@ -251,7 +251,7 @@ export default function ChartPreview({
                           onRenderEnd={plotlyTimer.onRenderEnd}
                         />
                       </Profiler>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Performance Metric for each chart */}
