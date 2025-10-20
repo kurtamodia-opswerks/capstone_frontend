@@ -101,6 +101,7 @@ export default function ChartJSRenderer({
   const options: ChartOptions<any> = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: false,
     plugins: {
       legend: {
         position: "bottom",

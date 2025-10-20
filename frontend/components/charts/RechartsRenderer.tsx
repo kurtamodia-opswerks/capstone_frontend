@@ -68,7 +68,7 @@ export default function RechartsRenderer({
         <YAxis label={{ value: yAxis, angle: -90, position: "insideLeft" }} />
         <Tooltip />
         <Legend verticalAlign="bottom" />
-        <Bar dataKey={yAxis} fill={colors[0]} />
+        <Bar dataKey={yAxis} fill={colors[0]} isAnimationActive={false} />
       </BarChart>
     ) : chartType === "line" ? (
       <LineChart
@@ -90,6 +90,7 @@ export default function RechartsRenderer({
           strokeWidth={2}
           dot={{ r: 3 }}
           activeDot={{ r: 5 }}
+          isAnimationActive={false}
         />
       </LineChart>
     ) : (
@@ -100,6 +101,7 @@ export default function RechartsRenderer({
           nameKey={xAxis}
           outerRadius={130}
           label
+          isAnimationActive={false}
         >
           {data.map((_, i) => (
             <Cell key={i} fill={colors[i % colors.length]} />
