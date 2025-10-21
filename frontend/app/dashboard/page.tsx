@@ -5,6 +5,7 @@ import { useDashboard } from "./hooks/useDashboard";
 import DashboardSidebar from "./components/DashboardSidebar";
 import DashboardEmptyState from "./components/DashboardEmptyState";
 import DashboardContent from "./components/DashboardContent";
+import Loading from "./loading";
 
 export default function Dashboard() {
   const searchParams = useSearchParams();
@@ -22,14 +23,7 @@ export default function Dashboard() {
   const { dashboard, loading } = dashboardState;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <div className="text-center space-y-3">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p>Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    <Loading />;
   }
 
   // Handle missing or invalid dashboard

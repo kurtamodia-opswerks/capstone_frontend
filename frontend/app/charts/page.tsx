@@ -5,6 +5,7 @@ import { useCharts } from "./hooks/useCharts";
 import DatasetInfoCard from "./components/DatasetInfoCard";
 import SavedChartsSection from "./components/SavedChartsSection";
 import ChartsEmptyState from "./components/ChartsEmptyState";
+import Loading from "./loading";
 
 export default function ChartsPageClient() {
   const searchParams = useSearchParams();
@@ -31,16 +32,7 @@ export default function ChartsPageClient() {
   } = useCharts(mode, uploadId);
 
   if (loading) {
-    return (
-      <>
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center space-y-3">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-muted-foreground text-sm">Loading charts...</p>
-          </div>
-        </div>
-      </>
-    );
+    <Loading />;
   }
 
   if (!headers || headers.length === 0) {

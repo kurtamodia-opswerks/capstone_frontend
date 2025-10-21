@@ -4,6 +4,7 @@ import ChartControls from "@/components/charts/ChartControls";
 import { useBuildData } from "./hooks/useBuildData";
 import BuildHeader from "./components/BuildHeader";
 import { BarChart3 } from "lucide-react";
+import Loading from "./loading";
 
 export default function BuildPage() {
   const searchParams = useSearchParams();
@@ -28,12 +29,7 @@ export default function BuildPage() {
         <BuildHeader />
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading data...</p>
-            </div>
-          </div>
+          <Loading />
         ) : headers.length > 0 ? (
           <ChartControls
             headers={headers}
