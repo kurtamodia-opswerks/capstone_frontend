@@ -23,6 +23,7 @@ import { Slider } from "../ui/slider";
 import { useDataStore } from "@/store/dataStore";
 import { fetchAggregateSchemalessData } from "@/lib/api/schema_less";
 import { useAutoInsights } from "@/hooks/useAutoInsights";
+import { Button } from "../ui/button";
 
 interface ChartControlsProps {
   headers: string[];
@@ -70,6 +71,7 @@ export default function ChartControls({
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const { columnTypes, minYear, maxYear, getYearRange } = useDataStore();
   const { suggestedChart, insightMessage } = useAutoInsights(
@@ -97,44 +99,40 @@ export default function ChartControls({
   }, [uploadId]);
 
   // Fetch aggregated data when config changes
-  useEffect(() => {
+  const handleGenerateChart = async () => {
     if (!xAxis || !yAxis) return;
+    try {
+      setLoading(true);
+      setError(null);
+      setHasGenerated(true);
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        let res = [];
-        if (mode === "schemaless" && uploadId) {
-          res = await fetchAggregateSchemalessData({
-            upload_id: uploadId,
-            x_axis: xAxis,
-            y_axis: yAxis,
-            agg_func: aggFunc,
-          });
-        } else {
-          res = await fetchAggregatedData(
-            uploadId,
-            xAxis,
-            yAxis,
-            aggFunc,
-            yearFrom,
-            yearTo
-          );
-        }
-
-        setData(res);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch chart data.");
-      } finally {
-        setLoading(false);
+      let res: any[] = [];
+      if (mode === "schemaless" && uploadId) {
+        res = await fetchAggregateSchemalessData({
+          upload_id: uploadId,
+          x_axis: xAxis,
+          y_axis: yAxis,
+          agg_func: aggFunc,
+        });
+      } else {
+        res = await fetchAggregatedData(
+          uploadId,
+          xAxis,
+          yAxis,
+          aggFunc,
+          yearFrom,
+          yearTo
+        );
       }
-    };
 
-    fetchData();
-  }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo, mode]);
+      setData(res);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch chart data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (suggestedChart) setChartType(suggestedChart);
@@ -342,6 +340,15 @@ export default function ChartControls({
                 </button>
               </div>
             </div>
+
+            {/* Generate Chart Button */}
+            <Button
+              className="w-full mt-4"
+              onClick={handleGenerateChart}
+              disabled={!xAxis || !yAxis || loading}
+            >
+              {loading ? "Generating..." : "Generate Chart"}
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -365,7 +372,7 @@ export default function ChartControls({
               Live Preview
             </CardTitle>
             <CardDescription>
-              Real-time visualization of your aggregated data
+              Click "Generate Chart" to visualize your data
             </CardDescription>
           </CardHeader>
           <CardContent className="h-full">
@@ -374,7 +381,7 @@ export default function ChartControls({
                 <div>
                   <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">
-                    Select X and Y axis columns to generate chart
+                    Select your configuration and click “Generate Chart”
                   </p>
                 </div>
               </div>

@@ -209,7 +209,8 @@ export default function ChartPreview({
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         {chartConfigs.map(
           (config) =>
-            config.show && (
+            config.show &&
+            config.id === chartingLibrary && (
               <Card key={config.id} className="h-full flex flex-col">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between">
