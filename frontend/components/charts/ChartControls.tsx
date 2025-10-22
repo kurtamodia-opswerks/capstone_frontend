@@ -191,7 +191,11 @@ export default function ChartControls({
               </div>
               {insightMessage && (
                 <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-sm text-blue-800 rounded">
-                  💡 {insightMessage}
+                  <p
+                    className="text-sm text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: insightMessage! }}
+                  />
+
                   {suggestedChart && (
                     <p className="mt-1 text-xs italic">
                       (Recommended chart type: <strong>{suggestedChart}</strong>

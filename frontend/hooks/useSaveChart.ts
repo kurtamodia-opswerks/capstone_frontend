@@ -17,6 +17,7 @@ export function useSaveChart() {
     yearTo?: string | null;
     chartName: string;
     chartingLibrary: "recharts" | "chartjs" | "plotly";
+    shareable?: boolean;
   }) => {
     setSaving(true);
     try {
@@ -30,7 +31,8 @@ export function useSaveChart() {
         payload.yearFrom || null,
         payload.yearTo || null,
         payload.chartName,
-        payload.chartingLibrary
+        payload.chartingLibrary,
+        payload.shareable
       );
       toast.success(`Chart "${res.name}" saved successfully!`);
       console.log(payload);

@@ -29,7 +29,9 @@ import {
   Save,
   Trophy,
   Clock,
+  Share2,
 } from "lucide-react";
+import { Switch } from "../ui/switch";
 
 export default function ChartPreview({
   mode,
@@ -70,6 +72,7 @@ export default function ChartPreview({
   const { saveChart, saving } = useSaveChart();
   const [openDialog, setOpenDialog] = useState(false);
   const [chartName, setChartName] = useState("");
+  const [shareable, setShareable] = useState(false);
 
   const rechartsTimer = useRenderTimer();
   const chartjsTimer = useRenderTimer();
@@ -110,6 +113,7 @@ export default function ChartPreview({
           yearTo,
           chartName,
           chartingLibrary,
+          shareable,
         });
         toast.success("Chart updated successfully");
       } else {
@@ -124,12 +128,14 @@ export default function ChartPreview({
           yearTo,
           chartName,
           chartingLibrary,
+          shareable,
         });
         toast.success("Chart saved successfully");
       }
 
       setOpenDialog(false);
       setChartName("");
+      setShareable(false);
       await refreshCharts(mode, uploadId ?? null);
       const params = new URLSearchParams({ mode });
       if (uploadId) params.set("uploadId", uploadId);
@@ -383,6 +389,27 @@ export default function ChartPreview({
               onChange={(e) => setChartName(e.target.value)}
             />
           </div>
+
+          {/* Shareable Toggle */}
+          {mode !== "schemaless" && (
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div className="flex items-center gap-3">
+                <Share2 className="h-4 w-4 text-gray-600" />
+                <div>
+                  <Label>Shareable</Label>
+                  <p className="text-sm text-gray-500">
+                    Allow others to view this chart via link
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={shareable}
+                onCheckedChange={setShareable}
+                aria-label="Toggle shareable"
+              />
+            </div>
+          )}
+
           <DialogFooter>
             <Button
               onClick={handleSaveChart}

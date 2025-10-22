@@ -23,6 +23,7 @@ export default function ChartsPageClient() {
     loading,
     headers,
     savedCharts,
+    shareableCharts,
     dashboardCharts,
     handleCreateChart,
     handleLoadChart,
@@ -63,7 +64,9 @@ export default function ChartsPageClient() {
       )}
 
       <SavedChartsSection
+        mode={mode}
         savedCharts={savedCharts}
+        shareableCharts={shareableCharts}
         dashboardCharts={dashboardCharts}
         onLoadChart={handleLoadChart}
         onAddToDashboard={handleAddToDashboard}

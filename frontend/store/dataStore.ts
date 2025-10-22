@@ -3,6 +3,7 @@ import {
   fetchSavedCharts,
   fetchChartById,
   fetchYearRange,
+  fetchShareableCharts,
 } from "@/lib/api/chart";
 import { getFetchedHeaders } from "@/lib/utils";
 import { fetchDashboard } from "@/lib/api/dashboard";
@@ -15,6 +16,7 @@ interface DataStore {
     "boolean" | "numeric" | "categorical" | "date" | "unknown"
   >;
   savedCharts: any[];
+  shareableCharts: any[];
   selectedChart: any | null;
   dashboard: any | null;
   minYear: number;
@@ -29,6 +31,7 @@ interface DataStore {
     >
   ) => void;
   setSavedCharts: (charts: any[]) => void;
+  setShareableCharts: (charts: any[]) => void;
   setSelectedChart: (chart: any | null) => void;
   setDashboard: (dashboard: any | null) => void;
 
@@ -43,6 +46,7 @@ export const useDataStore = create<DataStore>((set) => ({
   rowsInserted: 0,
   columnTypes: {},
   savedCharts: [],
+  shareableCharts: [],
   selectedChart: null,
   dashboard: null,
   minYear: 0,
@@ -52,14 +56,16 @@ export const useDataStore = create<DataStore>((set) => ({
   setRowsInserted: (count) => set({ rowsInserted: count }),
   setColumnTypes: (types) => set({ columnTypes: types }),
   setSavedCharts: (charts) => set({ savedCharts: charts }),
+  setShareableCharts: (charts) => set({ shareableCharts: charts }),
   setSelectedChart: (chart) => set({ selectedChart: chart }),
   setDashboard: (dashboard) => set({ dashboard }),
 
   refreshCharts: async (mode, uploadId) => {
     try {
-      const [headerData, charts] = await Promise.all([
+      const [headerData, charts, chartsShared] = await Promise.all([
         getFetchedHeaders(mode, uploadId),
         fetchSavedCharts(mode, uploadId),
+        fetchShareableCharts(),
       ]);
 
       set({
@@ -69,7 +75,10 @@ export const useDataStore = create<DataStore>((set) => ({
           "boolean" | "numeric" | "categorical" | "date" | "unknown"
         >,
         savedCharts: charts,
+        shareableCharts: chartsShared,
       });
+      console.log(charts);
+      console.log(chartsShared);
     } catch (err) {
       console.error("Failed to refresh charts:", err);
     }

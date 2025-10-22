@@ -38,7 +38,8 @@ export async function postSaveChart(
   yearFrom: string | null,
   yearTo: string | null,
   name: string,
-  chartingLibrary: "recharts" | "chartjs" | "plotly"
+  chartingLibrary: "recharts" | "chartjs" | "plotly",
+  shareable?: boolean
 ) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chart/save`, {
     method: "POST",
@@ -54,11 +55,24 @@ export async function postSaveChart(
       year_to: yearTo ? Number(yearTo) : undefined,
       name,
       chart_library: chartingLibrary,
+      shareable,
     }),
   });
 
   if (!res.ok) throw new Error("Failed to save chart");
   return res.json();
+}
+
+export async function fetchShareableCharts() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/chart/shared/all`
+    );
+    if (!res.ok) throw new Error("Failed to fetch saved charts");
+    return res.json();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // fetch saved charts
@@ -108,6 +122,7 @@ export async function updateChart(
     yearTo?: string | null;
     chartName?: string;
     chartingLibrary?: "recharts" | "chartjs" | "plotly";
+    shareable?: boolean;
   }
 ) {
   const res = await fetch(
@@ -128,6 +143,7 @@ export async function updateChart(
         year_to: updatedData.yearTo ? Number(updatedData.yearTo) : undefined,
         name: updatedData.chartName,
         chart_library: updatedData.chartingLibrary,
+        shareable: updatedData.shareable,
       }),
     }
   );
