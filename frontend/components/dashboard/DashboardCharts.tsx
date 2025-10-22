@@ -62,9 +62,6 @@ export default function DashboardCharts({
   initialYearFrom,
   initialYearTo,
   handleImportChart,
-  showRecharts,
-  showChartJs,
-  showPlotly,
 }: DashboardChartsProps) {
   const router = useRouter();
   const [chartData, setChartData] = useState<Record<string, any[]>>({});
@@ -329,7 +326,8 @@ export default function DashboardCharts({
                       {chart.name || `Chart ${index + 1}`}
                     </h3>
                     <p className="text-xs text-gray-500 capitalize">
-                      {chart.chart_type} • {chart.agg_func || "No aggregation"}
+                      {chart.chart_type} • {chart.agg_func || "No aggregation"}{" "}
+                      • {chart.chart_library}
                     </p>
                   </div>
                 </div>

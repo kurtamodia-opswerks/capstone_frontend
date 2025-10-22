@@ -3,6 +3,7 @@
 import { useDataStore } from "@/store/dataStore";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function useDashboard(
   mode: "dataset" | "aggregated" | "schemaless",
@@ -19,6 +20,65 @@ export function useDashboard(
   const [showPlotly, setShowPlotly] = useState(true);
 
   const { dashboard, refreshDashboard } = useDataStore();
+
+  useEffect(() => {
+    const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL!);
+
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.onmessage = async (event) => {
+      console.log("Message from server:", event.data);
+
+      // Example message: "dataset_uploaded:3679-86fc-aefa"
+      if (event.data.startsWith("dataset_uploaded")) {
+        const [, uploadedId] = event.data.split(":");
+        console.log(`Dataset uploaded: ${uploadedId}`);
+
+        let countdown = 5;
+
+        // Create a persistent toast
+        const toastId = toast.loading(
+          `A new dataset has been uploaded. Refreshing dashboard in ${countdown}...`
+        );
+
+        // Start countdown
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            toast.loading(
+              `A new dataset has been uploaded. Refreshing dashboard in ${countdown}...`,
+              {
+                id: toastId,
+              }
+            );
+          } else {
+            clearInterval(interval);
+            toast.success(`Dashboard refreshed for dataset: ${uploadedId}`, {
+              id: toastId,
+            });
+
+            // Actually refresh dashboard
+            refreshDashboard(mode, uploadId || null).catch((err) => {
+              console.error("Failed to refresh dashboard:", err);
+              toast.error("Failed to refresh dashboard", { id: toastId });
+            });
+          }
+        }, 1000);
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket closed");
+    };
+
+    return () => ws.close();
+  }, [mode, uploadId, refreshDashboard]);
 
   // Only refresh when mode or uploadId changes
   useEffect(() => {

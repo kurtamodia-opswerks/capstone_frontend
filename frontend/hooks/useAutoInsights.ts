@@ -71,7 +71,7 @@ function generateInsight(
       ? "represents categories"
       : "has mixed values";
 
-  return `Looks like "${xLabel}" ${xHint}, and "${yLabel}" ${yHint}. A ${chart} chart might best show this relationship.`;
+  return `Looks like "<strong>${xLabel}</strong>" ${xHint}, and "<strong>${yLabel}</strong>" ${yHint}. A ${chart} chart might best show this relationship.`;
 }
 
 export function useAutoInsights(
