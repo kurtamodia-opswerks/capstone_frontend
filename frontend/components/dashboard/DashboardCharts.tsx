@@ -404,9 +404,7 @@ export default function DashboardCharts({
                   yearFrom={globalYearFrom || chart.year_from}
                   yearTo={globalYearTo || chart.year_to}
                   showPerformancePanel={false}
-                  showChartJs={showChartJs}
-                  showRecharts={showRecharts}
-                  showPlotly={showPlotly}
+                  chartingLibrary={chart.chart_library}
                 />
               ) : (
                 <div className="flex items-center justify-center h-32 text-gray-400">

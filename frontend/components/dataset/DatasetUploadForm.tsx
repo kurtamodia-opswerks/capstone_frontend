@@ -17,12 +17,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DatasetSelector from "./DatasetSelector";
 import { useRouter } from "next/navigation";
 import SchemalessSelector from "./SchemalessSelector";
+import { useDataStore } from "@/store/dataStore";
 
 interface UploadResponse {
   message: string;
   upload_id: string;
   rows_inserted: number;
   rows_skipped: number;
+  column_types: Record<
+    string,
+    "boolean" | "numeric" | "categorical" | "date" | "unknown"
+  >;
 }
 
 interface DatasetUploadFormProps {
@@ -34,6 +39,8 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+
+  const { setRowsInserted, setColumnTypes } = useDataStore();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFile(e.target.files?.[0] ?? null);
@@ -75,6 +82,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
         setStatus(
           `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
         );
+        setRowsInserted(uploaded.rows_inserted);
         setFile(null);
 
         router.push(`/charts?mode=schemaless&uploadId=${uploaded.upload_id}`);
@@ -83,6 +91,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
         setStatus(
           `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
         );
+        setRowsInserted(uploaded.rows_inserted);
         setFile(null);
 
         if (mode === "dataset") {
@@ -91,6 +100,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
           setStatus(
             `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
           );
+          setRowsInserted(uploaded.rows_inserted);
         }
       }
     } catch (error: any) {

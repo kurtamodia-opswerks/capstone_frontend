@@ -31,12 +31,15 @@ export default function BuildPage() {
         {loading ? (
           <Loading />
         ) : headers.length > 0 ? (
-          <ChartControls
-            headers={headers}
-            uploadId={uploadId}
-            mode={mode}
-            initialConfig={initialConfig || undefined}
-          />
+          <>
+            {" "}
+            <ChartControls
+              headers={headers}
+              uploadId={uploadId}
+              mode={mode}
+              initialConfig={initialConfig || undefined}
+            />
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">

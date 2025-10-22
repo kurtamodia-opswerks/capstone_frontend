@@ -27,6 +27,7 @@ export function useBuildData(
             aggFunc: chartData.agg_func,
             yearFrom: chartData.year_from,
             yearTo: chartData.year_to,
+            chartLibrary: chartData.chart_library,
           });
         }
       } catch (err) {

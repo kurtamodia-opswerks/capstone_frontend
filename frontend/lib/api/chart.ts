@@ -37,7 +37,8 @@ export async function postSaveChart(
   aggFunc: string,
   yearFrom: string | null,
   yearTo: string | null,
-  name: string
+  name: string,
+  chartingLibrary: "recharts" | "chartjs" | "plotly"
 ) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chart/save`, {
     method: "POST",
@@ -52,6 +53,7 @@ export async function postSaveChart(
       year_from: yearFrom ? Number(yearFrom) : undefined,
       year_to: yearTo ? Number(yearTo) : undefined,
       name,
+      chart_library: chartingLibrary,
     }),
   });
 
@@ -105,6 +107,7 @@ export async function updateChart(
     yearFrom?: string | null;
     yearTo?: string | null;
     chartName?: string;
+    chartingLibrary?: "recharts" | "chartjs" | "plotly";
   }
 ) {
   const res = await fetch(
@@ -124,6 +127,7 @@ export async function updateChart(
           : undefined,
         year_to: updatedData.yearTo ? Number(updatedData.yearTo) : undefined,
         name: updatedData.chartName,
+        chart_library: updatedData.chartingLibrary,
       }),
     }
   );

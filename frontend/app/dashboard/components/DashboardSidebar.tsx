@@ -74,9 +74,9 @@ export default function DashboardSidebar({
         </NavigationMenuList>
       </NavigationMenu>
 
-      <div className="mt-10 ml-6">
+      {/* <div className="mt-10 ml-6">
         <DashboardSettingsDialog {...settingsProps} />
-      </div>
+      </div> */}
     </div>
   );
 }

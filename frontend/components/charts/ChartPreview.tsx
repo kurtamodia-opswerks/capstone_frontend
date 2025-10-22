@@ -45,6 +45,7 @@ export default function ChartPreview({
   showChartJs = true,
   showRecharts = true,
   showPlotly = true,
+  chartingLibrary,
 }: {
   mode: "aggregated" | "dataset" | "schemaless";
   chartType: "bar" | "line" | "pie";
@@ -59,6 +60,7 @@ export default function ChartPreview({
   showChartJs?: boolean;
   showRecharts?: boolean;
   showPlotly?: boolean;
+  chartingLibrary: "recharts" | "chartjs" | "plotly";
 }) {
   const { refreshCharts } = useDataStore();
   const router = useRouter();
@@ -107,6 +109,7 @@ export default function ChartPreview({
           yearFrom,
           yearTo,
           chartName,
+          chartingLibrary,
         });
         toast.success("Chart updated successfully");
       } else {
@@ -120,6 +123,7 @@ export default function ChartPreview({
           yearFrom,
           yearTo,
           chartName,
+          chartingLibrary,
         });
         toast.success("Chart saved successfully");
       }
@@ -216,31 +220,36 @@ export default function ChartPreview({
                 </CardHeader>
                 <CardContent className="flex-1 p-4">
                   <div className=" border rounded-lg">
-                    {config.id === "recharts" && (
-                      <Profiler id="recharts" onRender={handleProfilerMetrics}>
-                        <RechartsRenderer
-                          chartType={chartType}
-                          data={data}
-                          xAxis={xAxis}
-                          yAxis={yAxis}
-                          onRenderStart={rechartsTimer.onRenderStart}
-                          onRenderEnd={rechartsTimer.onRenderEnd}
-                        />
-                      </Profiler>
-                    )}
-                    {config.id === "chartjs" && (
-                      <Profiler id="chartjs" onRender={handleProfilerMetrics}>
-                        <ChartJSRenderer
-                          chartType={chartType}
-                          data={data}
-                          xAxis={xAxis}
-                          yAxis={yAxis}
-                          onRenderStart={chartjsTimer.onRenderStart}
-                          onRenderEnd={chartjsTimer.onRenderEnd}
-                        />
-                      </Profiler>
-                    )}
-                    {config.id === "plotly" && (
+                    {config.id === "recharts" &&
+                      chartingLibrary === "recharts" && (
+                        <Profiler
+                          id="recharts"
+                          onRender={handleProfilerMetrics}
+                        >
+                          <RechartsRenderer
+                            chartType={chartType}
+                            data={data}
+                            xAxis={xAxis}
+                            yAxis={yAxis}
+                            onRenderStart={rechartsTimer.onRenderStart}
+                            onRenderEnd={rechartsTimer.onRenderEnd}
+                          />
+                        </Profiler>
+                      )}
+                    {config.id === "chartjs" &&
+                      chartingLibrary === "chartjs" && (
+                        <Profiler id="chartjs" onRender={handleProfilerMetrics}>
+                          <ChartJSRenderer
+                            chartType={chartType}
+                            data={data}
+                            xAxis={xAxis}
+                            yAxis={yAxis}
+                            onRenderStart={chartjsTimer.onRenderStart}
+                            onRenderEnd={chartjsTimer.onRenderEnd}
+                          />
+                        </Profiler>
+                      )}
+                    {config.id === "plotly" && chartingLibrary === "plotly" && (
                       <Profiler id="plotly" onRender={handleProfilerMetrics}>
                         <PlotlyRenderer
                           chartType={chartType}

@@ -16,6 +16,7 @@ export function useSaveChart() {
     yearFrom?: string | null;
     yearTo?: string | null;
     chartName: string;
+    chartingLibrary: "recharts" | "chartjs" | "plotly";
   }) => {
     setSaving(true);
     try {
@@ -28,9 +29,11 @@ export function useSaveChart() {
         payload.aggFunc || "sum",
         payload.yearFrom || null,
         payload.yearTo || null,
-        payload.chartName
+        payload.chartName,
+        payload.chartingLibrary
       );
       toast.success(`Chart "${res.name}" saved successfully!`);
+      console.log(payload);
       return res;
     } catch (err: any) {
       console.error(err);

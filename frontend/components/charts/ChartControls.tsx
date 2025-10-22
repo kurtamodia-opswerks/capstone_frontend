@@ -8,7 +8,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -23,6 +22,7 @@ import { fetchAggregatedData } from "@/lib/api/chart";
 import { Slider } from "../ui/slider";
 import { useDataStore } from "@/store/dataStore";
 import { fetchAggregateSchemalessData } from "@/lib/api/schema_less";
+import { useAutoInsights } from "@/hooks/useAutoInsights";
 
 interface ChartControlsProps {
   headers: string[];
@@ -35,6 +35,7 @@ interface ChartControlsProps {
     aggFunc?: string;
     yearFrom?: string;
     yearTo?: string;
+    chartLibrary?: "recharts" | "chartjs" | "plotly";
   };
 }
 
@@ -62,11 +63,20 @@ export default function ChartControls({
   const [yearTo, setYearTo] = useState<string | null>(
     initialConfig?.yearTo || null
   );
+  const [chartingLibrary, setChartingLibrary] = useState<
+    "recharts" | "chartjs" | "plotly"
+  >(initialConfig?.chartLibrary || "recharts");
+
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { minYear, maxYear, getYearRange } = useDataStore();
+  const { columnTypes, minYear, maxYear, getYearRange } = useDataStore();
+  const { suggestedChart, insightMessage } = useAutoInsights(
+    columnTypes,
+    xAxis,
+    yAxis
+  );
 
   const chartIcons = {
     bar: BarChart3,
@@ -126,6 +136,10 @@ export default function ChartControls({
     fetchData();
   }, [uploadId, xAxis, yAxis, aggFunc, yearFrom, yearTo, mode]);
 
+  useEffect(() => {
+    if (suggestedChart) setChartType(suggestedChart);
+  }, [suggestedChart]);
+
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
       {/* Configuration Panel - Left Sidebar */}
@@ -142,6 +156,69 @@ export default function ChartControls({
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {/* Data Configuration */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">X Axis Column</Label>
+                <Select value={xAxis ?? ""} onValueChange={setXAxis}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select X axis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {headers.map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Y Axis Column</Label>
+                <Select value={yAxis ?? ""} onValueChange={setYAxis}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Y axis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {headers.map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {insightMessage && (
+                <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-sm text-blue-800 rounded">
+                  💡 {insightMessage}
+                  {suggestedChart && (
+                    <p className="mt-1 text-xs italic">
+                      (Recommended chart type: <strong>{suggestedChart}</strong>
+                      )
+                    </p>
+                  )}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Aggregation Function
+                </Label>
+                <Select value={aggFunc} onValueChange={setAggFunc}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select function" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sum">Sum</SelectItem>
+                    <SelectItem value="avg">Average</SelectItem>
+                    <SelectItem value="count">Count</SelectItem>
+                    <SelectItem value="min">Minimum</SelectItem>
+                    <SelectItem value="max">Maximum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             {/* Chart Type Selection */}
             <div className="space-y-4">
               <Label className="text-sm font-medium flex items-center gap-2">
@@ -185,59 +262,6 @@ export default function ChartControls({
               </div>
             </div>
 
-            {/* Data Configuration */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">X Axis Column</Label>
-                <Select value={xAxis ?? ""} onValueChange={setXAxis}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select X axis" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {headers.map((h) => (
-                      <SelectItem key={h} value={h}>
-                        {h}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Y Axis Column</Label>
-                <Select value={yAxis ?? ""} onValueChange={setYAxis}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Y axis" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {headers.map((h) => (
-                      <SelectItem key={h} value={h}>
-                        {h}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Aggregation Function
-                </Label>
-                <Select value={aggFunc} onValueChange={setAggFunc}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select function" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sum">Sum</SelectItem>
-                    <SelectItem value="avg">Average</SelectItem>
-                    <SelectItem value="count">Count</SelectItem>
-                    <SelectItem value="min">Minimum</SelectItem>
-                    <SelectItem value="max">Maximum</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             {/* Year Range Slider */}
             {mode !== "schemaless" && (
               <div className="p-4 bg-gray-50 rounded-lg space-y-3">
@@ -267,6 +291,53 @@ export default function ChartControls({
                 </p>
               </div>
             )}
+            <CardHeader className="pb-4">
+              <CardDescription>
+                Choose which charting library you want to use
+              </CardDescription>
+            </CardHeader>
+
+            <div className="space-y-4">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <ChartIcon className="h-4 w-4" />
+                Charting Library
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setChartingLibrary("recharts")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartingLibrary === "recharts"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  <span className="text-xs font-medium">Recharts</span>
+                </button>
+                <button
+                  onClick={() => setChartingLibrary("chartjs")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartingLibrary === "chartjs"
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <LineChart className="h-5 w-5" />
+                  <span className="text-xs font-medium">Chart.js</span>
+                </button>
+                <button
+                  onClick={() => setChartingLibrary("plotly")}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                    chartingLibrary === "plotly"
+                      ? "border-purple-500 bg-purple-50 text-purple-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <PieChart className="h-5 w-5" />
+                  <span className="text-xs font-medium">Plotly</span>
+                </button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -331,6 +402,7 @@ export default function ChartControls({
                 yearFrom={yearFrom}
                 yearTo={yearTo}
                 showPerformancePanel={true}
+                chartingLibrary={chartingLibrary}
               />
             )}
           </CardContent>

@@ -1,4 +1,3 @@
-// /store/dataStore.ts
 import { create } from "zustand";
 import {
   fetchSavedCharts,
@@ -10,6 +9,11 @@ import { fetchDashboard } from "@/lib/api/dashboard";
 
 interface DataStore {
   headers: string[];
+  rowsInserted: number;
+  columnTypes: Record<
+    string,
+    "boolean" | "numeric" | "categorical" | "date" | "unknown"
+  >;
   savedCharts: any[];
   selectedChart: any | null;
   dashboard: any | null;
@@ -17,6 +21,13 @@ interface DataStore {
   maxYear: number;
 
   setHeaders: (headers: string[]) => void;
+  setRowsInserted: (count: number) => void;
+  setColumnTypes: (
+    types: Record<
+      string,
+      "boolean" | "numeric" | "categorical" | "date" | "unknown"
+    >
+  ) => void;
   setSavedCharts: (charts: any[]) => void;
   setSelectedChart: (chart: any | null) => void;
   setDashboard: (dashboard: any | null) => void;
@@ -29,6 +40,8 @@ interface DataStore {
 
 export const useDataStore = create<DataStore>((set) => ({
   headers: [],
+  rowsInserted: 0,
+  columnTypes: {},
   savedCharts: [],
   selectedChart: null,
   dashboard: null,
@@ -36,17 +49,27 @@ export const useDataStore = create<DataStore>((set) => ({
   maxYear: 0,
 
   setHeaders: (headers) => set({ headers }),
+  setRowsInserted: (count) => set({ rowsInserted: count }),
+  setColumnTypes: (types) => set({ columnTypes: types }),
   setSavedCharts: (charts) => set({ savedCharts: charts }),
   setSelectedChart: (chart) => set({ selectedChart: chart }),
   setDashboard: (dashboard) => set({ dashboard }),
 
   refreshCharts: async (mode, uploadId) => {
     try {
-      const [headers, charts] = await Promise.all([
+      const [headerData, charts] = await Promise.all([
         getFetchedHeaders(mode, uploadId),
         fetchSavedCharts(mode, uploadId),
       ]);
-      set({ headers, savedCharts: charts });
+
+      set({
+        headers: headerData.valid_headers || [],
+        columnTypes: (headerData.column_types || {}) as Record<
+          string,
+          "boolean" | "numeric" | "categorical" | "date" | "unknown"
+        >,
+        savedCharts: charts,
+      });
     } catch (err) {
       console.error("Failed to refresh charts:", err);
     }

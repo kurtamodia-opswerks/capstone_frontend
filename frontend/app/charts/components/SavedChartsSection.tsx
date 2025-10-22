@@ -30,7 +30,7 @@ export default function SavedChartsSection({
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-blue-600" />
-          My Saved Charts
+          Saved Charts
         </CardTitle>
         <CardDescription>
           View, load, or add your saved charts to a dashboard
