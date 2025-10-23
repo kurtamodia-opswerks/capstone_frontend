@@ -13,6 +13,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface DatasetInfoCardProps {
   headers: string[];
+  columnTypes: Record<
+    string,
+    "boolean" | "numeric" | "categorical" | "date" | "unknown"
+  >;
   uploadId: string | null;
   onViewDashboard: () => void;
   onCreateChart: () => void;
@@ -20,6 +24,7 @@ interface DatasetInfoCardProps {
 
 export default function DatasetInfoCard({
   headers,
+  columnTypes,
   uploadId,
   onViewDashboard,
   onCreateChart,
@@ -51,15 +56,19 @@ export default function DatasetInfoCard({
 
       <CardContent>
         <div className="flex flex-wrap gap-2 mb-6">
-          {headers.map((header) => (
-            <Badge
-              key={header}
-              variant="secondary"
-              className="px-3 py-1.5 text-sm font-medium"
-            >
-              {header}
-            </Badge>
-          ))}
+          {headers.map((header) => {
+            const type = columnTypes[header] ?? "unknown";
+            return (
+              <Badge
+                key={header}
+                variant="secondary"
+                className="px-3 py-1.5 text-sm font-medium flex items-center gap-1"
+              >
+                <span>{header}</span>
+                <span className="text-xs text-muted-foreground">({type})</span>
+              </Badge>
+            );
+          })}
         </div>
 
         <Card className="bg-blue-50 border-blue-200 mb-6">

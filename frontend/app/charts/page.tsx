@@ -22,6 +22,7 @@ export default function ChartsPageClient() {
   const {
     loading,
     headers,
+    columnTypes,
     savedCharts,
     shareableCharts,
     dashboardCharts,
@@ -57,6 +58,7 @@ export default function ChartsPageClient() {
       {headers.length > 0 && (
         <DatasetInfoCard
           headers={headers}
+          columnTypes={columnTypes}
           uploadId={uploadId}
           onViewDashboard={handleViewDashboard}
           onCreateChart={handleCreateChart}

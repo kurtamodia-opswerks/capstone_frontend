@@ -12,7 +12,7 @@ export function useCharts(
 ) {
   const router = useRouter();
 
-  const { headers, savedCharts, shareableCharts, refreshCharts } =
+  const { headers, columnTypes, savedCharts, shareableCharts, refreshCharts } =
     useDataStore();
   const [dashboardCharts, setDashboardCharts] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +90,7 @@ export function useCharts(
   return {
     loading,
     headers,
+    columnTypes,
     savedCharts,
     shareableCharts,
     dashboardCharts,
