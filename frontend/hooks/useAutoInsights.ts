@@ -7,34 +7,6 @@ interface AutoInsights {
   insightMessage: string | null;
 }
 
-/** Detects the type of a field based on its values */
-function detectColumnType(values: any[]): FieldType {
-  const nonNull = values.filter(
-    (v) => v !== null && v !== undefined && v !== ""
-  );
-  if (nonNull.length === 0) return "unknown";
-
-  const sample = nonNull.slice(0, 20);
-
-  // Check for date strings or Date objects
-  if (sample.every((v) => !isNaN(Date.parse(v)))) return "date";
-
-  // Check for numeric values
-  if (sample.every((v) => !isNaN(Number(v)))) return "numeric";
-
-  // Check for booleans
-  if (
-    sample.every((v) =>
-      ["true", "false", "yes", "no", true, false, 0, 1].includes(
-        typeof v === "string" ? v.toLowerCase() : v
-      )
-    )
-  )
-    return "boolean";
-
-  return "categorical";
-}
-
 // Simple rules for recommending chart types
 function recommendChartType(
   xType: FieldType,
