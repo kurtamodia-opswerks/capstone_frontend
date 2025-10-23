@@ -23,7 +23,7 @@ interface UploadResponse {
   message: string;
   upload_id: string;
   rows_inserted: number;
-  rows_skipped: number;
+  num_duplicates: number;
   column_types: Record<
     string,
     "boolean" | "numeric" | "categorical" | "date" | "unknown"
@@ -80,7 +80,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
       if (mode === "schemaless") {
         const uploaded: UploadResponse = await uploadSchemaless(file);
         setStatus(
-          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.num_duplicates} rows skipped as duplicates.`
         );
         setRowsInserted(uploaded.rows_inserted);
         setFile(null);
@@ -89,7 +89,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
       } else {
         const uploaded: UploadResponse = await uploadDataset(file);
         setStatus(
-          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+          `success: ${uploaded.rows_inserted} rows processed successfully, ${uploaded.num_duplicates} rows skipped as duplicates.`
         );
         setRowsInserted(uploaded.rows_inserted);
         setFile(null);
@@ -98,7 +98,7 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
           router.push(`/charts?mode=dataset&uploadId=${uploaded.upload_id}`);
         } else {
           setStatus(
-            `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.rows_skipped} rows skipped as duplicates.`
+            `success: Aggregated dataset updated! ${uploaded.rows_inserted} rows processed successfully, ${uploaded.num_duplicates} rows skipped as duplicates.`
           );
           setRowsInserted(uploaded.rows_inserted);
         }
