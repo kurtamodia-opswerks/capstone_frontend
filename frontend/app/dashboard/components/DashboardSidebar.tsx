@@ -8,7 +8,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { FileText, Plus, ChartSpline, BarChart3 } from "lucide-react";
-import DashboardSettingsDialog from "./DashboardSettingsDialog";
+import LogoutButton from "@/components/LogoutButton";
 
 interface DashboardSidebarProps {
   mode: string;
@@ -18,11 +18,8 @@ interface DashboardSidebarProps {
 }
 
 export default function DashboardSidebar({
-  mode,
-  uploadId,
   handleCreateChart,
   handleImportChart,
-  ...settingsProps
 }: DashboardSidebarProps & any) {
   return (
     <div className="col-span-1 p-6 sticky top-0 bg-gray-100">
@@ -74,9 +71,7 @@ export default function DashboardSidebar({
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* <div className="mt-10 ml-6">
-        <DashboardSettingsDialog {...settingsProps} />
-      </div> */}
+      <LogoutButton />
     </div>
   );
 }

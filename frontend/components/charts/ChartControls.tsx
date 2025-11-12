@@ -66,7 +66,7 @@ export default function ChartControls({
   );
   const [chartingLibrary, setChartingLibrary] = useState<
     "recharts" | "chartjs" | "plotly"
-  >(initialConfig?.chartLibrary || "recharts");
+  >(initialConfig?.chartLibrary || "plotly");
 
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -306,23 +306,31 @@ export default function ChartControls({
               </Label>
               <div className="grid grid-cols-3 gap-2">
                 <button
+                  disabled={true}
                   onClick={() => setChartingLibrary("recharts")}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                    chartingLibrary === "recharts"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200
+                    ${
+                      true // disabled
+                        ? "cursor-not-allowed opacity-60 border-gray-200 bg-gray-50 text-gray-400"
+                        : chartingLibrary === "recharts"
+                        ? "border-blue-500 bg-blue-100/70 text-blue-700 shadow-sm"
+                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                    }`}
                 >
                   <BarChart3 className="h-5 w-5" />
                   <span className="text-xs font-medium">Recharts</span>
                 </button>
                 <button
+                  disabled={true}
                   onClick={() => setChartingLibrary("chartjs")}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                    chartingLibrary === "chartjs"
-                      ? "border-green-500 bg-green-50 text-green-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200
+                    ${
+                      true // disabled
+                        ? "cursor-not-allowed opacity-60 border-gray-200 bg-gray-50 text-gray-400"
+                        : chartingLibrary === "chartjs"
+                        ? "border-green-500 bg-green-100/70 text-green-700 shadow-sm"
+                        : "border-gray-200 hover:border-green-300 hover:bg-green-50 hover:text-green-700"
+                    }`}
                 >
                   <LineChart className="h-5 w-5" />
                   <span className="text-xs font-medium">Chart.js</span>
