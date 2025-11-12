@@ -28,12 +28,12 @@ export default function MainLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen grid grid-cols-7">
+        <div className="min-h-screen grid grid-cols-9">
           {/* Sidebar */}
           <Sidebar />
 
           {/* Main content */}
-          <main className="col-span-6">{children}</main>
+          <main className="col-span-7">{children}</main>
         </div>
       </body>
     </html>

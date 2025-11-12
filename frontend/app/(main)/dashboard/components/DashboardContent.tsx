@@ -25,7 +25,7 @@ export default function DashboardContent({
   showPlotly,
 }: DashboardContentProps) {
   return (
-    <div className="w-full mx-auto p-6 col-span-6">
+    <div className="w-full mx-auto p-6 col-span-7">
       <DashboardHeader mode={mode} uploadId={uploadId} />
       {!loading && (
         <DashboardCharts

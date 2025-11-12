@@ -50,7 +50,7 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <div className="col-span-1 p-6 sticky top-0 bg-gray-100 flex flex-col justify-between h-screen">
+    <div className="col-span-2 w-full max-w-[300] p-6 sticky top-0 bg-gray-100 flex flex-col justify-between h-screen">
       {/* Top section */}
       <div>
         <div className="flex items-center justify-start gap-3 mb-6">
@@ -130,8 +130,8 @@ export default function Sidebar() {
               </Avatar>
 
               <div className="flex flex-col gap-1 items-start">
-                <span className="text-md">{session?.user?.name}</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm">{session?.user?.name}</span>
+                <span className="text-xs text-gray-500">
                   {session?.user?.email}
                 </span>
               </div>
