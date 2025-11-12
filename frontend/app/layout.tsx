@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
+import DashboardSidebar from "./dashboard/components/DashboardSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +31,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
-        <Toaster />
+        <SessionProvider>
+          <div className="min-h-screen grid grid-cols-7">
+            {/* Sidebar */}
+            <DashboardSidebar />
+
+            {/* Main content */}
+            <main className="col-span-6">{children}</main>
+          </div>
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   );
