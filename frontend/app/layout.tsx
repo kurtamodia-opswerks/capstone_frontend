@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chart Builder & Chart Benchmarks",
+  title: "Vizly",
   description:
     "Both a practial tool for creating charts by uploading datasets as well as a benchmarking tool for chart libraries.",
 };

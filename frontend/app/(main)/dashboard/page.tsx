@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import { useDashboard } from "./hooks/useDashboard";
-import DashboardSidebar from "./components/DashboardSidebar";
 import DashboardEmptyState from "./components/DashboardEmptyState";
 import DashboardContent from "./components/DashboardContent";
 import Loading from "./loading";
@@ -23,7 +22,7 @@ export default function Dashboard() {
   const { dashboard, loading } = dashboardState;
 
   if (loading) {
-    <Loading />;
+    return <Loading />;
   }
 
   // Handle missing or invalid dashboard
@@ -33,7 +32,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 grid grid-cols-7 gap-4">
-      <DashboardSidebar mode={mode} uploadId={uploadId} {...dashboardState} />
       <DashboardContent mode={mode} uploadId={uploadId} {...dashboardState} />
     </div>
   );

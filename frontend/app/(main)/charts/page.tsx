@@ -34,7 +34,7 @@ export default function ChartsPageClient() {
   } = useCharts(mode, uploadId);
 
   if (loading) {
-    <Loading />;
+    return <Loading />;
   }
 
   if (!headers || headers.length === 0) {
