@@ -11,9 +11,9 @@ export default function BuildPage() {
   const mode =
     searchParams.get("mode") === "dataset"
       ? "dataset"
-      : searchParams.get("mode") === "aggregated"
-      ? "aggregated"
-      : "schemaless";
+      : searchParams.get("mode") === "schemaless"
+      ? "schemaless"
+      : "aggregated";
   const uploadId = searchParams.get("uploadId");
   const chartId = searchParams.get("chartId");
 

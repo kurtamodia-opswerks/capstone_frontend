@@ -65,11 +65,17 @@ export default function PlotlyRenderer({
     yaxis: { title: { text: yAxis ?? "" } },
   };
 
+  const config: Partial<Plotly.Config> = {
+    responsive: true,
+    editable: true,
+  };
+
   return (
     <div className="w-full h-[400px]">
       <Plot
         data={plotData}
         layout={layout}
+        config={config}
         useResizeHandler
         style={{ width: "100%", height: "100%" }}
       />
