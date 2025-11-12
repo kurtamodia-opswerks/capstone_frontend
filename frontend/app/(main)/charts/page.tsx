@@ -46,7 +46,7 @@ export default function ChartsPageClient() {
       {/* Header */}
       <div className="flex items-center justify-center">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-900 to-green-600 bg-clip-text text-transparent">
             Saved Visualizations
           </h1>
           <p className="text-center text-sm text-muted-foreground mt-2">

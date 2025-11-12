@@ -36,7 +36,7 @@ export default function DatasetInfoCard({
           <CardTitle className="text-base">
             <div>
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Database className="h-5 w-5 text-blue-600" />
+                <Database className="h-5 w-5 text-green-600" />
                 Dataset Structure
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -71,17 +71,17 @@ export default function DatasetInfoCard({
           })}
         </div>
 
-        <Card className="bg-blue-50 border-blue-200 mb-6">
+        <Card className="bg-green-50 border-green-200 mb-6">
           <CardContent className="p-4">
-            <h4 className="font-medium text-blue-900 mb-2">
+            <h4 className="font-medium text-green-900 mb-2">
               Ready to Visualize!
             </h4>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-green-700">
               Your dataset is ready. You can create a new visualization now.
             </p>
             <Button
               onClick={onCreateChart}
-              className="mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+              className="mt-3 bg-green-600 hover:bg-green-700 text-white"
             >
               Create New Chart
             </Button>

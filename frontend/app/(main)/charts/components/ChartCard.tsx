@@ -45,8 +45,8 @@ export default function ChartCard({
       <CardContent className="p-4">
         <div className="flex flex-row items-center justify-between">
           <div>
-            <h4 className="font-medium text-blue-900 mb-2">{chart.name}</h4>
-            <p className="text-sm text-blue-700">{chart.chart_type}</p>
+            <h4 className="font-medium text-green-900 mb-2">{chart.name}</h4>
+            <p className="text-sm text-green-700">{chart.chart_type}</p>
           </div>
 
           <Dialog>
@@ -88,7 +88,7 @@ export default function ChartCard({
         <div className="flex gap-2 mt-3">
           <Button
             onClick={() => onLoadChart(chart)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             Load
           </Button>

@@ -254,7 +254,7 @@ export default function DashboardCharts({
         {/* Global Year Filter */}
         <div className="flex flex-col lg:flex-row items-center gap-4 bg-white border rounded-lg p-4 shadow-sm w-full">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-600" />
+            <Calendar className="w-5 h-5 text-green-600" />
             <span className="text-sm font-medium">Year Range</span>
           </div>
 
@@ -318,8 +318,8 @@ export default function DashboardCharts({
             <div className="p-4 border-b bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <BarChart3 className="h-4 w-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <BarChart3 className="h-4 w-4 text-green-600" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">
@@ -334,11 +334,7 @@ export default function DashboardCharts({
                 <div className="flex flex-row gap-3">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="load"
-                        onClick={() => handleLoadChart(chart)}
-                      >
+                      <Button size="sm" onClick={() => handleLoadChart(chart)}>
                         <RefreshCcw />
                       </Button>
                     </TooltipTrigger>

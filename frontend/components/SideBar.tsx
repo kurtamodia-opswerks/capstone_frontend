@@ -54,10 +54,10 @@ export default function Sidebar() {
       {/* Top section */}
       <div>
         <div className="flex items-center justify-start gap-3 mb-6">
-          <div className="p-2 bg-blue-500 rounded-lg">
+          <div className="p-2 bg-green-900 rounded-lg">
             <BarChart3 className="h-4 w-4 text-white" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-green-900 to-green-600 bg-clip-text text-transparent">
             Vizly
           </h1>
         </div>

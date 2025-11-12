@@ -123,8 +123,8 @@ export default function DatasetUploadForm({ mode }: DatasetUploadFormProps) {
       >
         <div className="max-w-md mx-auto space-y-4">
           <div className="flex justify-center">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Upload className="h-8 w-8 text-blue-600" />
+            <div className="p-3 bg-green-100 rounded-full">
+              <Upload className="h-8 w-8 text-green-600" />
             </div>
           </div>
 

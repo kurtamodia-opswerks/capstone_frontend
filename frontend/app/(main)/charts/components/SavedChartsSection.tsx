@@ -34,7 +34,7 @@ export default function SavedChartsSection({
       <Card className="bg-white border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-blue-600" />
+            <BarChart3 className="h-5 w-5 text-green-600" />
             Saved Charts
           </CardTitle>
           <CardDescription>
@@ -66,7 +66,7 @@ export default function SavedChartsSection({
         <Card className="bg-white border-gray-200">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <BarChart3 className="h-5 w-5 text-green-600" />
               Shared Chart Configurations
             </CardTitle>
             <CardDescription>

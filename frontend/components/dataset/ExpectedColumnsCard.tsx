@@ -21,10 +21,10 @@ const expectedColumns = [
 
 export default function ExpectedColumnsCard() {
   return (
-    <Card className="bg-white/90 backdrop-blur-sm border shadow-lg border-blue-200">
+    <Card className="bg-white/90 backdrop-blur-sm border shadow-lg border-green-200">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-xl">
-          <Table className="h-5 w-5 text-blue-600" />
+          <Table className="h-5 w-5 text-green-600" />
           Expected Dataset Columns
         </CardTitle>
         <CardDescription>
@@ -39,7 +39,7 @@ export default function ExpectedColumnsCard() {
               key={col.name}
               className="flex flex-col items-center justify-center p-3 border rounded-lg bg-slate-50 hover:bg-blue-50 transition"
             >
-              <Badge variant="outline" className="text-blue-700">
+              <Badge variant="outline" className="text-green-700">
                 {col.name}
               </Badge>
               <span className="text-xs text-muted-foreground mt-1">

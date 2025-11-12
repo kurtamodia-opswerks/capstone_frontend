@@ -14,7 +14,7 @@ export default function VisualizationModeCard() {
     <Card className="bg-white/90 backdrop-blur-sm border shadow-lg">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-2xl">
-          <Database className="h-6 w-6 text-blue-600" />
+          <Database className="h-6 w-6 text-green-600" />
           Data Visualization Modes
         </CardTitle>
         <CardDescription>

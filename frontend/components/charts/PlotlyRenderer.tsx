@@ -40,7 +40,7 @@ export default function PlotlyRenderer({
   let plotData: any[] = [];
   if (chartType === "bar") {
     plotData = [
-      { x: xValues, y: yValues, type: "bar", marker: { color: "#4f46e5" } },
+      { x: xValues, y: yValues, type: "bar", marker: { color: "#16a34a" } },
     ];
   } else if (chartType === "line") {
     plotData = [

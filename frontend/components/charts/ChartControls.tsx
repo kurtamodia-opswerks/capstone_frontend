@@ -145,7 +145,7 @@ export default function ChartControls({
         <Card className="sticky top-6">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Sliders className="h-5 w-5 text-blue-600" />
+              <Sliders className="h-5 w-5 text-green-600" />
               Chart Configuration
             </CardTitle>
             <CardDescription>
@@ -188,7 +188,7 @@ export default function ChartControls({
                 </Select>
               </div>
               {insightMessage && (
-                <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-sm text-blue-800 rounded">
+                <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500 text-sm text-green-800 rounded">
                   <p
                     className="text-sm text-gray-700"
                     dangerouslySetInnerHTML={{ __html: insightMessage! }}
