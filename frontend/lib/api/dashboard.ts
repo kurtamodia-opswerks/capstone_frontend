@@ -4,9 +4,7 @@ export interface DashboardData {
   chart_id?: string;
 }
 
-// ===========================
 // Add or update a dashboard
-// ===========================
 export async function addToDashboard(dashboard: DashboardData) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/add`, {
     method: "POST",
@@ -22,9 +20,7 @@ export async function addToDashboard(dashboard: DashboardData) {
   return res.json();
 }
 
-// ===========================
 // Remove a chart from a dashboard
-// ===========================
 export async function removeChartFromDashboard(
   dashboardId: string,
   chartId: string
@@ -44,6 +40,7 @@ export async function removeChartFromDashboard(
   return res.json();
 }
 
+// Fetch dashboard
 export async function fetchDashboard(mode: string, uploadId: string | null) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/dashboard/${mode}/${uploadId}`,
@@ -58,6 +55,7 @@ export async function fetchDashboard(mode: string, uploadId: string | null) {
   return res.json();
 }
 
+// Update dashboard with filters
 export async function updateDashboardDateRange(
   dashboardId: string,
   yearFrom: number | null,
