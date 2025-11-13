@@ -50,7 +50,7 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <div className="col-span-2 w-full max-w-[300] p-6 sticky top-0 bg-gray-100 flex flex-col justify-between h-screen">
+    <div className="col-span-2 p-6 sticky top-0 bg-gray-100 flex flex-col justify-between h-screen">
       {/* Top section */}
       <div>
         <div className="flex items-center justify-start gap-3 mb-6">
